@@ -1,10 +1,12 @@
 import type { DishContent } from "@dish-list/shared";
 import { db, type LocalDish } from "./database";
 import { type Actor, applyPatch, buildNewDish, type DishPatch } from "./dishRecord";
+import { notifyLocalChange } from "./localChanges";
 
 /**
  * 料理の読み書き。UIからの変更はすべてこの関数群を通す。
  * 削除は論理削除（墓標）にし、レコードは消さない（REQUIREMENTS.md 6.4）。
+ * 変更したら notifyLocalChange() で同期エンジンに知らせる。
  */
 
 /** 削除されていない料理をすべて返す */
@@ -20,6 +22,7 @@ export function getDish(id: string): Promise<LocalDish | undefined> {
 export async function createDish(content: DishContent, actor: Actor): Promise<string> {
   const dish = buildNewDish(content, actor);
   await db.dishes.add(dish);
+  notifyLocalChange();
   return dish.id;
 }
 
@@ -37,4 +40,5 @@ async function patchDish(id: string, patch: DishPatch, actor: Actor): Promise<vo
     if (!current) throw new Error(`料理が見つかりません: ${id}`);
     await db.dishes.put(applyPatch(current, patch, actor));
   });
+  notifyLocalChange();
 }
