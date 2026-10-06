@@ -32,7 +32,7 @@
 - `npm run typecheck`：全ワークスペースの型チェック
 - `npm run lint` / `npm run format`（確認だけなら `npm run format:check`）
 - `npm run build`：全ワークスペースのビルド
-- 未作成：`docker compose up -d --build`
+- `docker compose up -d --build`：本番用のコンテナを起動する（http://127.0.0.1:8080 。手順は README.md）
 
 ## コードの置き場所
 
@@ -41,7 +41,7 @@
 - `client/src/features/<機能>/`：画面と、その画面だけで使う部品・フック・ロジック（`dishes`、`onboarding`、`session`、`settings`、`sync`）。画面に依存しないロジックは `*Query.ts` などの純粋関数に分けてテストする
 - `client/src/sync/`：同期エンジン（`syncEngine.ts`）、APIの呼び出し（`syncApi.ts`）、受け取った内容の反映規則（`mergeRules.ts`）、同期のきっかけ（`syncTriggers.ts`）。UIは `features/sync/` の `useSyncStatus` と `requestManualSync` だけを使う
 - `client/src/components/`：機能に依存しない共通部品（Button、BottomSheet、ConfirmDialog、Toast、useSheet など）
-- `server/src/`：`index.ts`（起動と組み立て）、`app.ts` と `routes/`（HTTPとzodの検証）、`sync/`（競合の判定 `resolveChange.ts` と同期処理 `syncService.ts`）、`db/`（SQLite、マイグレーション、行とDishの変換）。SQLは `db/` にだけ書く
+- `server/src/`：`index.ts`（起動と組み立て）、`app.ts` と `routes/`（HTTPとzodの検証）、`sync/`（競合の判定 `resolveChange.ts` と同期処理 `syncService.ts`）、`db/`（SQLite、マイグレーション、行とDishの変換）、`backup/`（毎日のバックアップ）、`routes/staticFiles.ts`（PWA本体の配信）。SQLは `db/` にだけ書く
 - 料理に項目を追加するときのserver側は、`db/migrations.ts` の末尾にALTER TABLEを足し、`db/dishStore.ts` の変換に項目を加える
 - `client/pwa.config.ts`：manifest と Service Worker の設定。`client/src/features/pwa/UpdatePrompt.tsx`：Service Worker の登録と更新ボタン。アイコンは `client/scripts/generate-icons.mjs` で作る
 - `client/src/styles/index.css`：デザイントークン（`@theme`）。色や角丸はここのトークンのクラスだけを使う
