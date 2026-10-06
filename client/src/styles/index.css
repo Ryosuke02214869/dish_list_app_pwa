@@ -3,9 +3,10 @@
 /*
  * デザイントークン（DESIGN.md 2〜4章）。値を変えるときはここだけを直す。
  * Tailwindの標準の色は無効にし、トークンの色だけを使えるようにしている。
+ * static を付け、未使用のトークンも CSS 変数として必ず出力する（var() で直接参照できるように）。
  * 例：bg-primary、text-text-sub、rounded-lg、shadow-card、px-gutter、max-w-app
  */
-@theme {
+@theme static {
   --color-*: initial;
   --color-primary: #1ba3a6;
   --color-primary-pressed: #168a8d;
