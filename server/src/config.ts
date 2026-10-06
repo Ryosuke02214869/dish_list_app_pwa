@@ -10,6 +10,8 @@ export interface ServerConfig {
   port: number;
   /** SQLite のファイルを置くフォルダー */
   dataDir: string;
+  /** PWA本体（client/dist）のフォルダー。未指定なら /api だけを返す（開発時は Vite が配信する） */
+  staticDir: string | undefined;
   /** アプリのバージョン（/api/health で返す） */
   version: string;
 }
@@ -19,6 +21,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     host: env.HOST ?? "127.0.0.1",
     port: Number(env.PORT ?? 8080),
     dataDir: path.resolve(env.DATA_DIR ?? "data"),
+    staticDir: env.STATIC_DIR ? path.resolve(env.STATIC_DIR) : undefined,
     version: rootPackage.version,
   };
 }

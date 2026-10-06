@@ -2,6 +2,7 @@ import type { SyncRequest, SyncResponse } from "@dish-list/shared";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { healthRoute } from "./routes/health";
+import { staticFilesRoute } from "./routes/staticFiles";
 import { syncRoute } from "./routes/sync";
 
 /**
@@ -12,12 +13,14 @@ import { syncRoute } from "./routes/sync";
 export interface AppDependencies {
   version: string;
   sync: (request: SyncRequest) => SyncResponse;
+  /** PWA本体のフォルダー（client/dist）。省略すると /api だけを返す（開発時は Vite が配信する） */
+  staticDir?: string;
 }
 
 /** リクエストの最大サイズ。料理200件（メモ2000文字）を送っても収まる大きさ */
 const MAX_BODY_BYTES = 4 * 1024 * 1024;
 
-export function createApp({ version, sync }: AppDependencies) {
+export function createApp({ version, sync, staticDir }: AppDependencies) {
   const api = new Hono()
     .use(async (c, next) => {
       await next();
@@ -26,7 +29,11 @@ export function createApp({ version, sync }: AppDependencies) {
     })
     .use(bodyLimit({ maxSize: MAX_BODY_BYTES }))
     .route("/health", healthRoute(version))
-    .route("/sync", syncRoute(sync));
+    .route("/sync", syncRoute(sync))
+    // 存在しない /api は、画面（index.html）ではなく 404 を返す
+    .all("*", (c) => c.json({ error: "not_found" }, 404));
 
-  return new Hono().route("/api", api);
+  const app = new Hono().route("/api", api);
+  if (staticDir) app.route("/", staticFilesRoute(staticDir));
+  return app;
 }

@@ -16,7 +16,11 @@ fs.mkdirSync(config.dataDir, { recursive: true });
 
 const db = openDatabase(path.join(config.dataDir, DATABASE_FILE));
 const syncService = createSyncService(db, createDishStore(db));
-const app = createApp({ version: config.version, sync: syncService.sync });
+const app = createApp({
+  version: config.version,
+  sync: syncService.sync,
+  staticDir: config.staticDir,
+});
 
 const server = serve({ fetch: app.fetch, hostname: config.host, port: config.port }, (info) => {
   console.log(`ごはんメモ server ${config.version}: http://${info.address}:${info.port}`);
