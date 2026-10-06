@@ -23,7 +23,11 @@ export function InstallGuide() {
       <ol className="mt-3 grid gap-2 text-[13px]">
         <Step number={1}>
           画面の共有ボタン
-          <span className="text-primary-strong" role="img" aria-label="共有">
+          <span
+            className="mx-0.5 inline-block align-[-3px] text-primary-strong"
+            role="img"
+            aria-label="共有"
+          >
             <ShareIcon />
           </span>
           をタップ（Safariは下、Chromeはアドレスバーの右）
@@ -45,7 +49,8 @@ function Step({ number, children }: { number: number; children: ReactNode }) {
       <span className="grid size-5 flex-none place-items-center rounded-full bg-primary-soft text-[11px] font-bold text-primary-strong">
         {number}
       </span>
-      <span className="inline-flex flex-wrap items-center gap-1">{children}</span>
+      {/* アイコンを文中に置けるよう、flex にせず普通の文章として並べる */}
+      <span>{children}</span>
     </li>
   );
 }
