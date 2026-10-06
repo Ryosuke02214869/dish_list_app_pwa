@@ -27,14 +27,20 @@
 ## コマンド（作成後に実際の内容へ更新すること）
 
 - `npm install`
+- `npm run dev`：clientの開発サーバー（http://localhost:5173）。serverは手順3で追加する
 - `npm test`：全ワークスペースのVitestを実行する
 - `npm run typecheck`：全ワークスペースの型チェック
 - `npm run lint` / `npm run format`（確認だけなら `npm run format:check`）
-- 未作成：`npm run dev`（clientとserverを同時に起動し、ViteのプロキシでAPIへ転送する）、`npm run build`、`docker compose up -d --build`
+- `npm run build`：全ワークスペースのビルド
+- 未作成：`docker compose up -d --build`
 
 ## コードの置き場所
 
 - `shared/src/`：`dish.ts`（料理の定義）、`sync.ts`（同期APIの定義）、`api.ts`（パスとhealth）、`limits.ts`（上限値）、`normalize.ts`（正規化）、`tag.ts`（タグの整形と比較）。外からは `@dish-list/shared`（`index.ts`）経由でだけ使う
+- `client/src/db/`：IndexedDBの定義とリポジトリ。テーブルを直接触るのはここだけ。料理の変更は `dishRecord.ts` の純粋関数を通して `dirty` と更新者を付ける
+- `client/src/features/<機能>/`：画面と、その画面だけで使う部品・フック・ロジック（`dishes`、`onboarding`、`session`）。画面に依存しないロジックは `*Query.ts` などの純粋関数に分けてテストする
+- `client/src/components/`：機能に依存しない共通部品（Button、BottomSheet、ConfirmDialog、Toast など）
+- `client/src/styles/index.css`：デザイントークン（`@theme`）。色や角丸はここのトークンのクラスだけを使う
 - 料理に項目を追加するときは、`shared/src/dish.ts` の `dishContentSchema` から始める
 - 上限値は `shared/src/limits.ts` にだけ書く。画面や検証に数値を直接書かない
 - テストは対象ファイルと同じ場所に `*.test.ts` として置く
