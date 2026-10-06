@@ -12,6 +12,8 @@ export interface ServerConfig {
   dataDir: string;
   /** PWA本体（client/dist）のフォルダー。未指定なら /api だけを返す（開発時は Vite が配信する） */
   staticDir: string | undefined;
+  /** バックアップ。保存先（BACKUP_DIR）が未指定なら作らない（開発時） */
+  backup: { dir: string; keep: number; timeZone: string } | undefined;
   /** アプリのバージョン（/api/health で返す） */
   version: string;
 }
@@ -22,6 +24,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     port: Number(env.PORT ?? 8080),
     dataDir: path.resolve(env.DATA_DIR ?? "data"),
     staticDir: env.STATIC_DIR ? path.resolve(env.STATIC_DIR) : undefined,
+    backup: env.BACKUP_DIR
+      ? {
+          dir: path.resolve(env.BACKUP_DIR),
+          keep: Number(env.BACKUP_KEEP ?? 14),
+          timeZone: env.BACKUP_TIME_ZONE ?? "Asia/Tokyo",
+        }
+      : undefined,
     version: rootPackage.version,
   };
 }
