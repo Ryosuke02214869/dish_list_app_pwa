@@ -1,7 +1,10 @@
 import { AppBar } from "../../components/AppBar";
 import { Fab } from "../../components/Fab";
+import { SettingsIcon } from "../../components/icons";
+import { useSheet } from "../../components/useSheet";
 import type { LocalDish } from "../../db/database";
-import { useState } from "react";
+import { SettingsSheet } from "../settings/SettingsSheet";
+import { SyncPill } from "../sync/SyncPill";
 import { DishCard } from "./DishCard";
 import { DishEditorSheet } from "./DishEditorSheet";
 import type { SortOrder } from "./dishListQuery";
@@ -12,11 +15,27 @@ import { useDishList } from "./useDishList";
 /** 一覧（ホーム）画面（REQUIREMENTS.md 9章、DESIGN.md 6章） */
 export function DishListPage() {
   const list = useDishList();
-  const editor = useEditorState();
+  // 編集シートの対象：null は新規追加
+  const editor = useSheet<LocalDish | null>();
+  const settings = useSheet();
 
   return (
     <div className="mx-auto min-h-dvh max-w-app pb-[calc(96px+env(safe-area-inset-bottom))]">
-      <AppBar>
+      <AppBar
+        actions={
+          <>
+            <SyncPill />
+            <button
+              type="button"
+              onClick={() => settings.openWith(undefined)}
+              aria-label="設定"
+              className="grid size-8 place-items-center rounded-full border border-border bg-surface text-text-sub"
+            >
+              <SettingsIcon />
+            </button>
+          </>
+        }
+      >
         <SearchBar value={list.keyword} onChange={list.setKeyword} />
         <TagFilterChips
           tags={list.tags}
@@ -36,7 +55,7 @@ export function DishListPage() {
         <ul className="grid gap-3 px-gutter">
           {list.visibleDishes.map((dish) => (
             <li key={dish.id}>
-              <DishCard dish={dish} onOpen={editor.openDish} />
+              <DishCard dish={dish} onOpen={editor.openWith} />
             </li>
           ))}
         </ul>
@@ -44,39 +63,19 @@ export function DishListPage() {
         <EmptyState hasAnyDish={list.allDishes.length > 0} />
       )}
 
-      <Fab label="追加" onClick={editor.openNew} />
+      <Fab label="追加" onClick={() => editor.openWith(null)} />
 
       <DishEditorSheet
         key={editor.key}
         open={editor.open}
-        dish={editor.dish}
+        dish={editor.target ?? null}
         onClose={editor.close}
         allDishes={list.allDishes ?? []}
         knownTags={list.tags}
       />
+      <SettingsSheet key={settings.key} open={settings.open} onClose={settings.close} />
     </div>
   );
-}
-
-/**
- * 編集シートの開閉と対象。開くたびに key を変えて、シートの入力を初期化する。
- * 閉じるアニメーションの間も内容を表示しておくため、閉じても対象の料理は残す。
- */
-function useEditorState() {
-  const [state, setState] = useState<{ key: number; open: boolean; dish: LocalDish | null }>({
-    key: 0,
-    open: false,
-    dish: null,
-  });
-  const openWith = (dish: LocalDish | null) =>
-    setState((prev) => ({ key: prev.key + 1, open: true, dish }));
-
-  return {
-    ...state,
-    openNew: () => openWith(null),
-    openDish: (dish: LocalDish) => openWith(dish),
-    close: () => setState((prev) => ({ ...prev, open: false })),
-  };
 }
 
 const SORT_LABELS: Record<SortOrder, string> = {
