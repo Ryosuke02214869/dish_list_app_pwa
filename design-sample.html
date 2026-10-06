@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4F6F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111517" media="(prefers-color-scheme: dark)">
+<title>ごはんメモ デザインサンプル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Design tokens（DESIGN.md と対応） ===== */
+:root {
+  --color-primary: #1BA3A6;
+  --color-primary-pressed: #168A8D;
+  --color-primary-strong: #0F7F82;
+  --color-primary-soft: #E5F5F5;
+  --color-primary-border: #BFE6E7;
+  --color-on-primary: #FFFFFF;
+
+  --color-bg: #F4F6F7;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F2F4F5;
+  --color-border: #E3E7EA;
+
+  --color-text: #1F2427;
+  --color-text-sub: #5F6B71;
+  --color-text-muted: #8A959B;
+
+  --color-danger: #D64545;
+  --color-warning: #E08A1E;
+  --color-success: #1BA3A6;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  --shadow-card: 0 1px 2px rgba(16,24,28,.04), 0 4px 16px rgba(16,24,28,.06);
+  --shadow-float: 0 6px 20px rgba(15,127,130,.28);
+  --shadow-sheet: 0 -8px 32px rgba(16,24,28,.14);
+
+  --font: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+  --gutter: 16px;
+  --app-max: 480px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #33BEC1;
+    --color-primary-pressed: #2AA6A9;
+    --color-primary-strong: #5FD3D6;
+    --color-primary-soft: #16353A;
+    --color-primary-border: #22545A;
+    --color-on-primary: #072325;
+    --color-bg: #111517;
+    --color-surface: #1B2124;
+    --color-surface-muted: #232A2E;
+    --color-border: #2D363A;
+    --color-text: #E8ECEE;
+    --color-text-sub: #A9B4B9;
+    --color-text-muted: #7C888E;
+    --color-danger: #F07070;
+    --shadow-card: 0 1px 2px rgba(0,0,0,.3);
+    --shadow-float: 0 6px 20px rgba(0,0,0,.4);
+    --shadow-sheet: 0 -8px 32px rgba(0,0,0,.5);
+  }
+}
+
+/* ===== Base ===== */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.app {
+  max-width: var(--app-max);
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  position: relative;
+}
+
+/* ===== App bar ===== */
+.appbar {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: calc(12px + env(safe-area-inset-top)) var(--gutter) 12px;
+}
+.appbar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--color-primary); color: var(--color-on-primary);
+  display: grid; place-items: center;
+}
+.brand h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: .02em; }
+.brand p { margin: 0; font-size: 11px; color: var(--color-text-muted); line-height: 1.2; }
+
+.sync-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 12px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-full);
+  background: var(--color-surface); font-size: 12px; color: var(--color-text-sub);
+}
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); }
+.sync-pill[data-state="pending"] .sync-dot { background: var(--color-warning); }
+.sync-pill[data-state="offline"] .sync-dot { background: var(--color-text-muted); }
+.sync-pill[data-state="syncing"] .sync-dot { animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+
+/* ===== Search ===== */
+.search {
+  margin-top: 12px; position: relative;
+}
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); }
+.search input {
+  width: 100%; height: 46px; padding: 0 16px 0 42px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-surface); font-size: 16px; /* 16px未満だとiOSがズームする */
+  outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.search input::placeholder { color: var(--color-text-muted); }
+.search input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-soft); }
+
+/* ===== Chips ===== */
+.chips {
+  display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+  padding: 12px var(--gutter) 4px; margin: 0 calc(var(--gutter) * -1);
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; height: 32px; padding: 0 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  font-size: 13px; color: var(--color-text-sub); white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.chip[aria-pressed="true"] {
+  background: var(--color-primary); border-color: var(--color-primary);
+  color: var(--color-on-primary); font-weight: 700;
+}
+.chip .count { margin-left: 4px; opacity: .7; font-size: 11px; }
+
+/* ===== List header ===== */
+.listbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px var(--gutter) 8px;
+}
+.listbar .total { font-size: 13px; color: var(--color-text-sub); }
+.listbar .total strong { color: var(--color-text); font-size: 15px; }
+.sort {
+  appearance: none; -webkit-appearance: none;
+  border: none; background: transparent; font-size: 13px;
+  color: var(--color-primary-strong); font-weight: 500; padding: 4px 0;
+}
+
+/* ===== Cards ===== */
+.cards { list-style: none; margin: 0; padding: 0 var(--gutter); display: grid; gap: 12px; }
+.card {
+  background: var(--color-surface); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card); padding: 16px;
+  border: none; width: 100%; text-align: left; display: block;
+  transition: transform .1s;
+}
+.card:active { transform: scale(.985); }
+.card-title { font-size: 17px; font-weight: 700; margin: 0 0 6px; line-height: 1.4; }
+.card-memo {
+  margin: 0 0 10px; font-size: 13px; color: var(--color-text-sub);
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 12px; line-height: 1; padding: 6px 10px; border-radius: var(--radius-full);
+  background: var(--color-primary-soft); color: var(--color-primary-strong); font-weight: 500;
+}
+.card-meta { margin-top: 10px; font-size: 11px; color: var(--color-text-muted); }
+
+.empty {
+  margin: 32px var(--gutter); padding: 32px 16px; text-align: center;
+  background: var(--color-surface); border-radius: var(--radius-lg);
+  color: var(--color-text-sub); font-size: 14px;
+}
+
+/* ===== FAB ===== */
+.fab {
+  position: fixed; z-index: 20;
+  right: max(var(--gutter), calc(50vw - var(--app-max) / 2 + var(--gutter)));
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  height: 56px; padding: 0 22px 0 18px; border: none; border-radius: var(--radius-full);
+  background: var(--color-primary); color: var(--color-on-primary);
+  font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: var(--shadow-float);
+}
+.fab:active { background: var(--color-primary-pressed); }
+
+/* ===== Buttons ===== */
+.btn {
+  height: 48px; border-radius: var(--radius-sm); font-weight: 700; font-size: 15px;
+  padding: 0 20px; border: 1px solid transparent;
+}
+.btn-primary { background: var(--color-primary); color: var(--color-on-primary); flex: 1; }
+.btn-primary:active { background: var(--color-primary-pressed); }
+.btn-primary:disabled { opacity: .4; }
+.btn-secondary { background: var(--color-surface); border-color: var(--color-border); color: var(--color-text); }
+.btn-danger { background: var(--color-surface); border-color: var(--color-border); color: var(--color-danger); }
+
+/* ===== Bottom sheet ===== */
+.scrim {
+  position: fixed; inset: 0; z-index: 30; background: rgba(10,16,18,.4);
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.sheet {
+  position: fixed; z-index: 31; left: 50%; bottom: 0;
+  width: 100%; max-width: var(--app-max);
+  transform: translate(-50%, 100%); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+  background: var(--color-surface); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-sheet);
+  max-height: 92dvh; display: flex; flex-direction: column;
+}
+body.sheet-open .scrim { opacity: 1; pointer-events: auto; }
+body.sheet-open .sheet { transform: translate(-50%, 0); }
+.sheet-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--color-border); margin: 10px auto 0; }
+.sheet-head { padding: 12px var(--gutter) 4px; display: flex; justify-content: space-between; align-items: center; }
+.sheet-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.icon-btn { width: 36px; height: 36px; border: none; background: var(--color-surface-muted); border-radius: 50%; display: grid; place-items: center; color: var(--color-text-sub); }
+.sheet-body { padding: 8px var(--gutter) 16px; overflow-y: auto; }
+.field { margin-top: 16px; }
+.field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.field label .req { color: var(--color-primary-strong); font-size: 11px; margin-left: 4px; }
+.input, .textarea {
+  width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-surface-muted); padding: 12px 14px; font-size: 16px; outline: none;
+  transition: border-color .15s, background .15s;
+}
+.input:focus, .textarea:focus { border-color: var(--color-primary); background: var(--color-surface); }
+.textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+.hint { font-size: 12px; color: var(--color-warning); margin-top: 6px; }
+.tag-editor {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-surface-muted); padding: 8px;
+}
+.tag-editor:focus-within { border-color: var(--color-primary); background: var(--color-surface); }
+.tag-editor input { flex: 1; min-width: 100px; border: none; background: transparent; outline: none; font-size: 16px; padding: 4px; }
+.tag-x { border: none; background: none; color: inherit; padding: 0 0 0 4px; font-size: 14px; line-height: 1; }
+.suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.suggest button {
+  font-size: 12px; padding: 6px 10px; border-radius: var(--radius-full);
+  border: 1px dashed var(--color-primary-border); background: transparent; color: var(--color-primary-strong);
+}
+.meta-box {
+  margin-top: 16px; padding: 12px 14px; border-radius: var(--radius-md);
+  background: var(--color-surface-muted); font-size: 12px; color: var(--color-text-sub);
+}
+.sheet-foot {
+  display: flex; gap: 10px; padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-border);
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed; z-index: 40; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 20px); opacity: 0; transition: .2s;
+  background: var(--color-text); color: var(--color-bg);
+  font-size: 13px; padding: 10px 16px; border-radius: var(--radius-full); pointer-events: none;
+}
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <div class="appbar-row">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0Z"/><path d="M7 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M17 7c0-1.5 1-2 1-3.5"/></svg>
+        </div>
+        <div>
+          <h1>ごはんメモ</h1>
+          <p>家族の料理リスト</p>
+        </div>
+      </div>
+      <button class="sync-pill" id="syncPill" data-state="synced" aria-live="polite">
+        <span class="sync-dot"></span><span id="syncText">同期済み 21:10</span>
+      </button>
+    </div>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="料理名・メモで検索" autocomplete="off" enterkeyhint="search">
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="タグで絞り込み"></div>
+  </header>
+
+  <div class="listbar">
+    <div class="total"><strong id="count">0</strong> 件</div>
+    <select class="sort" id="sort" aria-label="並び順">
+      <option value="updated">更新が新しい順 ▾</option>
+      <option value="name">名前順（五十音）▾</option>
+    </select>
+  </div>
+
+  <ul class="cards" id="list"></ul>
+  <div class="empty" id="empty" hidden>条件に合う料理がありません。<br>タグや検索ワードを変えてみてください。</div>
+</div>
+
+<button class="fab" id="addBtn" aria-label="料理を追加">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  追加
+</button>
+
+<div class="scrim" id="scrim"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h2 id="sheetTitle">料理を編集</h2>
+    <button class="icon-btn" id="closeBtn" aria-label="閉じる">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <label for="fName">料理名<span class="req">必須</span></label>
+      <input class="input" id="fName" maxlength="100" placeholder="例：肉じゃが">
+      <div class="hint" id="dupHint" hidden>同じ名前の料理がすでに登録されています</div>
+    </div>
+    <div class="field">
+      <label for="fMemo">メモ</label>
+      <textarea class="textarea" id="fMemo" maxlength="2000" placeholder="材料、コツ、家族の反応など"></textarea>
+    </div>
+    <div class="field">
+      <label for="fTagInput">タグ</label>
+      <div class="tag-editor" id="tagEditor">
+        <input id="fTagInput" placeholder="入力してEnter" enterkeyhint="done">
+      </div>
+      <div class="suggest" id="suggest"></div>
+    </div>
+    <div class="meta-box" id="metaBox"></div>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn btn-danger" id="delBtn">削除</button>
+    <button class="btn btn-primary" id="saveBtn">保存する</button>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const ME = "あなた";
+let dishes = [
+  { id: "1", name: "肉じゃが", memo: "じゃがいもはメークインで煮崩れしにくい。みりん多めが好評。", tags: ["和食","主菜","作り置き"], updatedAt: "2026-10-04T20:15:00", updatedBy: "ママ" },
+  { id: "2", name: "鶏の照り焼き", memo: "皮目から焼いてパリッと。タレは醤油:みりん:酒=1:1:1。", tags: ["和食","主菜","時短"], updatedAt: "2026-10-04T18:02:00", updatedBy: "パパ" },
+  { id: "3", name: "麻婆豆腐", memo: "子ども用は辛味を後入れ。豆腐は木綿。", tags: ["中華","主菜"], updatedAt: "2026-10-03T19:30:00", updatedBy: "ママ" },
+  { id: "4", name: "豚汁", memo: "具だくさんで翌日も。ごぼうは先に炒める。", tags: ["和食","汁物","作り置き"], updatedAt: "2026-10-02T17:45:00", updatedBy: "ママ" },
+  { id: "5", name: "オムライス", memo: "ケチャップライスは少し濃いめ。卵は半熟。", tags: ["洋食","主食","子ども人気"], updatedAt: "2026-10-01T12:10:00", updatedBy: "けんた" },
+  { id: "6", name: "鮭のホイル焼き", memo: "きのことバター。トースターで15分。", tags: ["和食","主菜","時短"], updatedAt: "2026-09-29T19:00:00", updatedBy: "パパ" },
+  { id: "7", name: "ほうれん草の胡麻和え", memo: "", tags: ["和食","副菜","時短"], updatedAt: "2026-09-28T18:20:00", updatedBy: "ママ" },
+  { id: "8", name: "キーマカレー", memo: "ひき肉と玉ねぎみじん切り。冷凍保存OK。", tags: ["洋食","主菜","作り置き","子ども人気"], updatedAt: "2026-09-25T18:40:00", updatedBy: "ママ" },
+];
+let selectedTags = new Set();
+let editing = null;   // 編集中の dish（新規は null）
+let draftTags = [];
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+// 正規化：NFKC → 小文字 → カタカナをひらがなへ
+const norm = (s) => s.normalize("NFKC").toLowerCase().trim()
+  .replace(/[\u30a1-\u30f6]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+const fmt = (iso) => { const d = new Date(iso); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
+
+function tagCounts() {
+  const m = new Map();
+  dishes.forEach(d => d.tags.forEach(t => m.set(t, (m.get(t) || 0) + 1)));
+  return [...m.entries()].sort((a, b) => b[1] - a[1]);
+}
+
+function renderChips() {
+  $("chips").innerHTML = tagCounts().map(([t, n]) =>
+    `<button class="chip" aria-pressed="${selectedTags.has(t)}" data-tag="${esc(t)}">#${esc(t)}<span class="count">${n}</span></button>`
+  ).join("");
+}
+
+function renderList() {
+  const q = norm($("q").value);
+  let list = dishes.filter(d =>
+    (!q || norm(d.name).includes(q) || norm(d.memo).includes(q)) &&
+    [...selectedTags].every(t => d.tags.includes(t))
+  );
+  list.sort($("sort").value === "name"
+    ? (a, b) => a.name.localeCompare(b.name, "ja")
+    : (a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  $("count").textContent = list.length;
+  $("empty").hidden = list.length > 0;
+  $("list").innerHTML = list.map(d => `
+    <li><button class="card" data-id="${d.id}">
+      <p class="card-title">${esc(d.name)}</p>
+      ${d.memo ? `<p class="card-memo">${esc(d.memo)}</p>` : ""}
+      <div class="tags">${d.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join("")}</div>
+      <div class="card-meta">${esc(d.updatedBy)}・${fmt(d.updatedAt)}</div>
+    </button></li>`).join("");
+}
+
+function render() { renderChips(); renderList(); }
+
+// ----- Sheet -----
+function openSheet(dish) {
+  editing = dish;
+  $("sheetTitle").textContent = dish ? "料理を編集" : "料理を追加";
+  $("fName").value = dish ? dish.name : "";
+  $("fMemo").value = dish ? dish.memo : "";
+  draftTags = dish ? [...dish.tags] : [];
+  $("delBtn").hidden = !dish;
+  $("metaBox").hidden = !dish;
+  if (dish) $("metaBox").textContent = `最終更新：${dish.updatedBy}（${fmt(dish.updatedAt)}）`;
+  renderTagEditor(); checkDup();
+  document.body.classList.add("sheet-open");
+  if (!dish) setTimeout(() => $("fName").focus(), 250);
+}
+function closeSheet() { document.body.classList.remove("sheet-open"); }
+
+function renderTagEditor() {
+  const ed = $("tagEditor");
+  ed.querySelectorAll(".tag").forEach(n => n.remove());
+  draftTags.forEach((t, i) => {
+    const span = document.createElement("span");
+    span.className = "tag";
+    span.innerHTML = `#${esc(t)}<button class="tag-x" data-i="${i}" aria-label="${esc(t)}を外す">×</button>`;
+    ed.insertBefore(span, $("fTagInput"));
+  });
+  const q = norm($("fTagInput").value.replace(/^#/, ""));
+  const sug = tagCounts().map(([t]) => t)
+    .filter(t => !draftTags.includes(t) && (!q || norm(t).includes(q))).slice(0, 8);
+  $("suggest").innerHTML = sug.map(t => `<button data-tag="${esc(t)}">+ ${esc(t)}</button>`).join("");
+}
+function addTag(raw) {
+  const t = raw.normalize("NFKC").replace(/^#/, "").trim().slice(0, 20);
+  if (t && !draftTags.some(x => norm(x) === norm(t)) && draftTags.length < 10) draftTags.push(t);
+  $("fTagInput").value = ""; renderTagEditor();
+}
+function checkDup() {
+  const n = norm($("fName").value);
+  $("dupHint").hidden = !n || !dishes.some(d => d !== editing && norm(d.name) === n);
+  $("saveBtn").disabled = !n;
+}
+
+let pending = 0;
+function setSync(state, text) { $("syncPill").dataset.state = state; $("syncText").textContent = text; }
+function markDirty() { pending++; setSync("pending", `未同期 ${pending}件`); }
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("show"), 1800); }
+
+// ----- Events -----
+$("q").addEventListener("input", renderList);
+$("sort").addEventListener("change", renderList);
+$("chips").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  const t = b.dataset.tag; selectedTags.has(t) ? selectedTags.delete(t) : selectedTags.add(t); render();
+});
+$("list").addEventListener("click", e => {
+  const c = e.target.closest(".card"); if (c) openSheet(dishes.find(d => d.id === c.dataset.id));
+});
+$("addBtn").addEventListener("click", () => openSheet(null));
+$("closeBtn").addEventListener("click", closeSheet);
+$("scrim").addEventListener("click", closeSheet);
+$("fName").addEventListener("input", checkDup);
+$("fTagInput").addEventListener("input", renderTagEditor);
+$("fTagInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); addTag(e.target.value); }
+  if (e.key === "Backspace" && !e.target.value && draftTags.length) { draftTags.pop(); renderTagEditor(); }
+});
+$("tagEditor").addEventListener("click", e => {
+  const x = e.target.closest(".tag-x");
+  if (x) { draftTags.splice(+x.dataset.i, 1); renderTagEditor(); } else $("fTagInput").focus();
+});
+$("suggest").addEventListener("click", e => { const b = e.target.closest("button"); if (b) addTag(b.dataset.tag); });
+$("saveBtn").addEventListener("click", () => {
+  if ($("fTagInput").value.trim()) addTag($("fTagInput").value);
+  const now = new Date().toISOString();
+  const data = { name: $("fName").value.trim(), memo: $("fMemo").value, tags: draftTags, updatedAt: now, updatedBy: ME };
+  if (editing) Object.assign(editing, data);
+  else dishes.push({ id: String(Date.now()), ...data });
+  closeSheet(); markDirty(); render(); toast(editing ? "保存しました" : "追加しました");
+});
+$("delBtn").addEventListener("click", () => {
+  if (!editing || !confirm(`「${editing.name}」を削除しますか？`)) return;
+  dishes = dishes.filter(d => d !== editing);
+  closeSheet(); markDirty(); render(); toast("削除しました");
+});
+$("syncPill").addEventListener("click", () => {
+  setSync("syncing", "同期中…");
+  setTimeout(() => {
+    pending = 0;
+    const d = new Date();
+    setSync("synced", `同期済み ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`);
+  }, 900);
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+
+render();
+</script>
+</body>
+</html>

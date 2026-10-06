@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+
+# サーバーのデータとバックアップ（ローカル実行時）
+server/data/
+backups/
