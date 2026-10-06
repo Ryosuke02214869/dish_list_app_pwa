@@ -27,7 +27,7 @@
 ## コマンド（作成後に実際の内容へ更新すること）
 
 - `npm install`
-- `npm run dev`：clientの開発サーバー（http://localhost:5173）。serverは手順3で追加する
+- `npm run dev`：clientとserverを同時に起動する（http://localhost:5173 。`/api` はViteのプロキシで http://127.0.0.1:8080 へ転送。データは `server/data/`）
 - `npm test`：全ワークスペースのVitestを実行する
 - `npm run typecheck`：全ワークスペースの型チェック
 - `npm run lint` / `npm run format`（確認だけなら `npm run format:check`）
@@ -40,6 +40,8 @@
 - `client/src/db/`：IndexedDBの定義とリポジトリ。テーブルを直接触るのはここだけ。料理の変更は `dishRecord.ts` の純粋関数を通して `dirty` と更新者を付ける
 - `client/src/features/<機能>/`：画面と、その画面だけで使う部品・フック・ロジック（`dishes`、`onboarding`、`session`）。画面に依存しないロジックは `*Query.ts` などの純粋関数に分けてテストする
 - `client/src/components/`：機能に依存しない共通部品（Button、BottomSheet、ConfirmDialog、Toast など）
+- `server/src/`：`index.ts`（起動と組み立て）、`app.ts` と `routes/`（HTTPとzodの検証）、`sync/`（競合の判定 `resolveChange.ts` と同期処理 `syncService.ts`）、`db/`（SQLite、マイグレーション、行とDishの変換）。SQLは `db/` にだけ書く
+- 料理に項目を追加するときのserver側は、`db/migrations.ts` の末尾にALTER TABLEを足し、`db/dishStore.ts` の変換に項目を加える
 - `client/src/styles/index.css`：デザイントークン（`@theme`）。色や角丸はここのトークンのクラスだけを使う
 - 料理に項目を追加するときは、`shared/src/dish.ts` の `dishContentSchema` から始める
 - 上限値は `shared/src/limits.ts` にだけ書く。画面や検証に数値を直接書かない
