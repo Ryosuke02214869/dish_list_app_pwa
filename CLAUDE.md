@@ -43,6 +43,7 @@
 - `client/src/components/`：機能に依存しない共通部品（Button、BottomSheet、ConfirmDialog、Toast、useSheet など）
 - `server/src/`：`index.ts`（起動と組み立て）、`app.ts` と `routes/`（HTTPとzodの検証）、`sync/`（競合の判定 `resolveChange.ts` と同期処理 `syncService.ts`）、`db/`（SQLite、マイグレーション、行とDishの変換）。SQLは `db/` にだけ書く
 - 料理に項目を追加するときのserver側は、`db/migrations.ts` の末尾にALTER TABLEを足し、`db/dishStore.ts` の変換に項目を加える
+- `client/pwa.config.ts`：manifest と Service Worker の設定。`client/src/features/pwa/UpdatePrompt.tsx`：Service Worker の登録と更新ボタン。アイコンは `client/scripts/generate-icons.mjs` で作る
 - `client/src/styles/index.css`：デザイントークン（`@theme`）。色や角丸はここのトークンのクラスだけを使う
 - 料理に項目を追加するときは、`shared/src/dish.ts` の `dishContentSchema` から始める
 - 上限値は `shared/src/limits.ts` にだけ書く。画面や検証に数値を直接書かない
