@@ -1,0 +1,23 @@
+# ごはんメモ：自宅のWindows PC（Docker Desktop）で動かす（REQUIREMENTS.md 12章）
+# 起動：docker compose up -d --build
+services:
+  app:
+    build: .
+    image: dish-list-app
+    container_name: dish-list-app
+    # PC起動時（Docker Desktop の起動時）に自動で起動する。手動で止めたときは止まったまま
+    restart: unless-stopped
+    ports:
+      # このPCからだけ接続できるようにする。外部へは Tailscale Serve 経由でだけ公開する
+      - "127.0.0.1:8080:8080"
+    volumes:
+      # SQLite の本体は named volume に置く（Windows のフォルダーだとロックや性能で問題が起きやすい）
+      - dish-data:/app/data
+      # バックアップは Windows 側のフォルダーに出す（エクスプローラーから見える）
+      - ./backups:/app/backups
+    environment:
+      TZ: Asia/Tokyo
+
+volumes:
+  dish-data:
+    name: dish-list-data

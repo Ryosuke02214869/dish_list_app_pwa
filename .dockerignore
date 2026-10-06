@@ -1,0 +1,14 @@
+# ビルドに不要なもの（イメージに入れない・ビルドのキャッシュを無駄にしない）
+**/node_modules
+**/dist
+**/coverage
+**/*.tsbuildinfo
+.git
+.claude
+server/data
+backups
+*.md
+design-sample.html
+Dockerfile
+docker-compose.yml
+.dockerignore
