@@ -41,6 +41,9 @@ export function DishListPage() {
           tags={list.tags}
           selectedKeys={list.selectedTagKeys}
           onToggle={list.toggleTag}
+          favoriteCount={list.favoriteCount}
+          favoritesOnly={list.favoritesOnly}
+          onToggleFavorites={list.toggleFavoritesOnly}
         />
       </AppBar>
 
