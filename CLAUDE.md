@@ -38,9 +38,11 @@
 
 - `shared/src/`：`dish.ts`（料理の定義）、`sync.ts`（同期APIの定義）、`api.ts`（パスとhealth）、`limits.ts`（上限値）、`normalize.ts`（正規化）、`tag.ts`（タグの整形と比較）。外からは `@dish-list/shared`（`index.ts`）経由でだけ使う
 - `client/src/db/`：IndexedDBの定義とリポジトリ。テーブルを直接触るのはここだけ。料理の変更は `dishRecord.ts` の純粋関数を通して `dirty` と更新者を付ける
-- `client/src/features/<機能>/`：画面と、その画面だけで使う部品・フック・ロジック（`dishes`、`onboarding`、`session`、`settings`、`sync`）。画面に依存しないロジックは `*Query.ts` などの純粋関数に分けてテストする
+- `client/src/features/<機能>/`：画面と、その画面だけで使う部品・フック・ロジック（`dishes`、`tags`、`onboarding`、`session`、`settings`、`sync`、`pwa`）。画面に依存しないロジックは `*Query.ts`・`*Rules.ts` などの純粋関数に分けてテストする
+- 画面の切り替え：`client/src/lib/hashRoute.ts`（URL のハッシュ。例：`#/tags`）と `client/src/App.tsx` の `PAGES`。画面を増やすときはこの2か所に加える
+- PC（幅768px以上）の表示は Tailwind の `md:`・`lg:` で切り替える（DESIGN.md 9章）。スマホの表示を先に書き、PC の違いだけを足す
 - `client/src/sync/`：同期エンジン（`syncEngine.ts`）、APIの呼び出し（`syncApi.ts`）、受け取った内容の反映規則（`mergeRules.ts`）、同期のきっかけ（`syncTriggers.ts`）。UIは `features/sync/` の `useSyncStatus` と `requestManualSync` だけを使う
-- `client/src/components/`：機能に依存しない共通部品（Button、BottomSheet、ConfirmDialog、Toast、useSheet など）
+- `client/src/components/`：機能に依存しない共通部品（Button、BottomSheet、ConfirmDialog、PromptDialog、Toast、useSheet など）
 - `server/src/`：`index.ts`（起動と組み立て）、`app.ts` と `routes/`（HTTPとzodの検証）、`sync/`（競合の判定 `resolveChange.ts` と同期処理 `syncService.ts`）、`db/`（SQLite、マイグレーション、行とDishの変換）、`backup/`（毎日のバックアップ）、`routes/staticFiles.ts`（PWA本体の配信）。SQLは `db/` にだけ書く
 - 料理に項目を追加するときのserver側は、`db/migrations.ts` の末尾にALTER TABLEを足し、`db/dishStore.ts` の変換に項目を加える
 - `client/pwa.config.ts`：manifest と Service Worker の設定。`client/src/features/pwa/UpdatePrompt.tsx`：Service Worker の登録と更新ボタン。アイコンは `client/scripts/generate-icons.mjs` で作る
