@@ -78,7 +78,7 @@
 | `shadow-sheet` | `0 -8px 32px rgba(16,24,28,.14)` | ボトムシート |
 
 - 余白は 4 の倍数（4 / 8 / 12 / 16 / 24 / 32）
-- コンテンツ最大幅 480px、PC では中央寄せ
+- コンテンツ最大幅 480px（スマホ）。幅 768px 以上は最大 1080px に広げ、中央寄せ（9章）
 - タップ領域は最小 44×44px（チップは高さ 32px だが左右の余白で確保）
 - セーフエリア：上部バーに `env(safe-area-inset-top)`、FAB・シート下部に `env(safe-area-inset-bottom)` を加える。`viewport-fit=cover` を指定
 
@@ -98,7 +98,10 @@
 | **Input / Textarea** | 背景 `surface-muted`、フォーカスで `surface`＋枠 `primary`。ラベルは上に 13px 太字、必須は「必須」を `primary-strong` で小さく |
 | **TagEditor** | 入力欄の中に選択済みタグ（×付き）を並べ、Enter で確定（IME 変換中の Enter は無視：`isComposing`）、空欄で Backspace なら最後のタグを外す。下に既存タグの候補（点線枠の pill）を最大8個 |
 | **MetaBox** | `surface-muted`・`radius-md`・12px。「最終更新：○○（10/4 20:15）」 |
-| **Toast** | 下部中央、FAB の上。反転色（`text` 背景／`bg` 文字）、1.8秒で消える |
+| **Toast** | 下部中央、FAB の上。反転色（`text` 背景／`bg` 文字）、1.8秒で消える。「取り消す」などのボタン付きは、左右16pxを空けた幅（最大448px）・`radius-lg`、ボタンは右端に太字＋下線、4秒で消える |
+| **CookButton** | カード右上と編集シートの「✓ 作った」。高さ36px・pill・`primary-soft` 背景＋`primary-border` 枠＋`primary-strong` 太字 |
+| **TagAdminRow** | タグの管理ページの1行。`surface`・`radius-lg`・`shadow-card`。左にタグ（Tag の見た目）と使用数、表記ゆれがあれば下に小さく並べる。右に「名前を変える」（Secondary・小）と「削除」（Danger・小） |
+| **PromptDialog** | 1行の入力欄つきの確認ダイアログ（ConfirmDialog と同じ見た目）。タグの名前の変更に使う |
 | **EmptyState** | `surface` カードに中央寄せの案内文 |
 
 ## 6. 画面との対応（REQUIREMENTS.md 9章）
@@ -106,7 +109,16 @@
 - **一覧（ホーム）**：サンプルの通り。AppBar（検索・タグ）→ 件数と並び替え → カードリスト → FAB
 - **詳細・編集／新規**：BottomSheet。新規時は削除ボタンと MetaBox を出さず、料理名にフォーカス
 - **設定**：AppBar 右上の SyncPill の隣に設定アイコン（またはピル長押し）から BottomSheet で開く。中身は利用者名の Input、同期状態、手動同期ボタン（Primary）、最終同期時刻、バージョン
+- **タグの管理**：設定のシートの「タグの管理」から開く全画面のページ。上部に「← 戻る」と見出し、下に TagAdminRow の一覧。変更と削除は ConfirmDialog／PromptDialog で確認する
 - **初回起動**：全画面。中央に大きめのアプリアイコンとアプリ名、短い説明、名前入力、下部に Primary ボタン「はじめる」。続けて「ホーム画面に追加」の手順（Safari：共有 → ホーム画面に追加）を図解したカード
+
+## 9. PC（幅の広い画面）
+
+- 幅 768px 以上を「PC」として扱う（Tailwind の ）。768px 未満のスマホの表示は変えない
+- 内容の最大幅は 1080px（トークン ）。AppBar の中身も同じ幅にそろえる
+- 料理のカードは、768px 以上で2列、1024px 以上で3列に並べる（間隔 12px）
+- BottomSheet は、768px 以上では画面中央のダイアログにする：幅は最大 560px、四隅を 、最大高さ 85dvh、ハンドルは出さない。開閉はフェード＋わずかな拡大
+- FAB は、内容の右端（1080px の右端）にそろえる
 
 ## 7. 動き
 
