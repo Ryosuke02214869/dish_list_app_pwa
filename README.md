@@ -4,6 +4,7 @@
 iPhone のホーム画面に追加して使い、オフラインでも閲覧・登録・編集ができます。
 自宅の Windows PC をサーバーにして、Tailscale 経由で接続できたときにデータを同期します。
 
+- **日々の操作（サーバーの起動・停止、Tailscale の使い方）：[docs/サーバーとTailscaleの使い方.md](docs/サーバーとTailscaleの使い方.md)**
 - 仕様：[REQUIREMENTS.md](REQUIREMENTS.md)
 - 見た目：[DESIGN.md](DESIGN.md)、[design-sample.html](design-sample.html)
 - 開発のルール：[CLAUDE.md](CLAUDE.md)
