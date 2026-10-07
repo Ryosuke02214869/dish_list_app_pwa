@@ -4,6 +4,7 @@ import { BottomSheet } from "../../components/BottomSheet";
 import { Button } from "../../components/Button";
 import { Field, TextInput } from "../../components/Field";
 import { useToast } from "../../components/Toast";
+import { navigate } from "../../lib/hashRoute";
 import { InstallGuide } from "../onboarding/InstallGuide";
 import { saveUserName, toValidUserName, useActor } from "../session/session";
 import { requestManualSync, useSyncStatus } from "../sync/useSyncStatus";
@@ -71,6 +72,26 @@ export function SettingsSheet({ open, onClose }: { open: boolean; onClose: () =>
             接続できない間も、この端末で登録や編集はできます。
           </p>
         )}
+      </section>
+
+      <section className="mt-6">
+        <h3 className="text-[13px] font-bold">管理</h3>
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            navigate("tags");
+          }}
+          className="mt-2 flex w-full items-center justify-between rounded-md bg-surface-muted px-3.5 py-3 text-left text-sm"
+        >
+          <span>
+            タグの管理
+            <span className="block text-xs text-text-muted">名前の変更・まとめる・削除</span>
+          </span>
+          <span className="text-text-muted" aria-hidden>
+            ›
+          </span>
+        </button>
       </section>
 
       <section className="mt-6">

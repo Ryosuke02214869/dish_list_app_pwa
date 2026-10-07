@@ -44,6 +44,8 @@
 
   --spacing-gutter: 16px;
   --container-app: 480px;
+  /* PC（幅768px以上）の内容の最大幅（DESIGN.md 9章） */
+  --container-wide: 1080px;
 
   --ease-sheet: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
