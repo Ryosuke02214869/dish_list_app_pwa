@@ -63,6 +63,17 @@ export function cookedPatch(dish: LocalDish, now: string): DishPatch {
   return { cookedCount: dish.cookedCount + 1, lastCookedAt: now };
 }
 
+/**
+ * 作った回数を直す変更（F-21）。最後に作った日は変えない。
+ * 0回にしたら記録なしに戻す。記録がない料理の回数は増やせない（日付のない記録を作らないため）。
+ */
+export function cookedCountPatch(dish: LocalDish, count: number): DishPatch {
+  const next = Math.max(0, Math.floor(count));
+  if (next === 0) return { cookedCount: 0, lastCookedAt: null };
+  if (dish.lastCookedAt === null) return {};
+  return { cookedCount: next };
+}
+
 export function applyPatch(
   dish: LocalDish,
   patch: DishPatch,

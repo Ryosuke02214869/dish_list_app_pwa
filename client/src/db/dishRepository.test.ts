@@ -8,6 +8,7 @@ import {
   listActiveDishes,
   markCooked,
   restoreCooking,
+  setCookedCount,
   updateDish,
 } from "./dishRepository";
 
@@ -70,5 +71,32 @@ describe("作った記録（F-16）", () => {
     await markCooked(id, actor);
     await updateDish(id, { name: "肉じゃが（甘め）", memo: "", tags: [], favorite: true }, actor);
     expect(await getDish(id)).toMatchObject({ cookedCount: 1, favorite: true });
+  });
+});
+
+describe("作った回数の修正（F-21）", () => {
+  it("回数を直すと保存されて未同期になり、0回で記録なしに戻る", async () => {
+    const id = await createDish({ name: "肉じゃが", memo: "", tags: [] }, actor);
+    await markCooked(id, actor);
+    await markCooked(id, actor);
+    const lastCookedAt = (await getDish(id))?.lastCookedAt;
+
+    await setCookedCount(id, 1, actor);
+    expect(await getDish(id)).toMatchObject({ cookedCount: 1, lastCookedAt, dirty: true });
+
+    await setCookedCount(id, 0, actor);
+    expect(await getDish(id)).toMatchObject({ cookedCount: 0, lastCookedAt: null });
+  });
+});
+
+describe("変更がないとき", () => {
+  it("記録がない料理の回数を増やそうとしても、更新者や未同期の印は変わらない", async () => {
+    const id = await createDish({ name: "肉じゃが", memo: "", tags: [] }, actor);
+    await db.dishes.update(id, { dirty: false });
+    const before = await getDish(id);
+
+    await setCookedCount(id, 1, { ...actor, userName: "パパ" });
+
+    expect(await getDish(id)).toEqual(before);
   });
 });

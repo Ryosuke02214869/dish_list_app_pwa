@@ -1,6 +1,13 @@
 import type { DishContentInput, DishCooking } from "@dish-list/shared";
 import { db, type LocalDish } from "./database";
-import { type Actor, applyPatch, buildNewDish, cookedPatch, type DishPatch } from "./dishRecord";
+import {
+  type Actor,
+  applyPatch,
+  buildNewDish,
+  cookedCountPatch,
+  cookedPatch,
+  type DishPatch,
+} from "./dishRecord";
 import { notifyLocalChange } from "./localChanges";
 
 /**
@@ -50,6 +57,11 @@ export async function markCooked(id: string, actor: Actor): Promise<DishCooking>
   return previous;
 }
 
+/** 作った回数を直す（F-21）。最後に作った日は変えない */
+export function setCookedCount(id: string, count: number, actor: Actor): Promise<void> {
+  return patchDish(id, (current) => cookedCountPatch(current, count), actor);
+}
+
 /** 「作った」の記録を、markCooked が返した値に戻す（取り消し） */
 export function restoreCooking(id: string, previous: DishCooking, actor: Actor): Promise<void> {
   return patchDish(id, previous, actor);
@@ -58,17 +70,20 @@ export function restoreCooking(id: string, previous: DishCooking, actor: Actor):
 /**
  * 1件を読み、変更して書き戻す。patch に関数を渡すと、今の値をもとに変更を決められる
  * （読み出しと書き込みの間にほかの変更が入らないよう、1つのトランザクションで行う）。
+ * 変更が空なら何もしない（更新者や未同期の印を付けない）。
  */
 async function patchDish(
   id: string,
   patch: DishPatch | ((current: LocalDish) => DishPatch),
   actor: Actor,
 ): Promise<void> {
-  await db.transaction("rw", db.dishes, async () => {
+  const changed = await db.transaction("rw", db.dishes, async () => {
     const current = await db.dishes.get(id);
     if (!current) throw new Error(`料理が見つかりません: ${id}`);
     const changes = typeof patch === "function" ? patch(current) : patch;
+    if (Object.keys(changes).length === 0) return false;
     await db.dishes.put(applyPatch(current, changes, actor));
+    return true;
   });
-  notifyLocalChange();
+  if (changed) notifyLocalChange();
 }

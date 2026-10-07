@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { LocalDish } from "./database";
-import { applyPatch, buildNewDish, sanitizeContent } from "./dishRecord";
+import { applyPatch, buildNewDish, cookedCountPatch, sanitizeContent } from "./dishRecord";
 
 const actor = { clientId: "7d2c1b4a-1f3e-4c5d-8e9f-0a1b2c3d4e5f", userName: "ママ" };
 const otherActor = { clientId: "11111111-2222-4333-8444-555555555555", userName: "パパ" };
@@ -91,5 +91,26 @@ describe("applyPatch", () => {
     const dish = syncedDish();
     applyPatch(dish, { name: "変更" }, actor, T2);
     expect(dish.name).toBe("肉じゃが");
+  });
+});
+
+describe("cookedCountPatch（作った回数の修正）", () => {
+  const cooked = (cookedCount: number) => ({
+    ...syncedDish(),
+    cookedCount,
+    lastCookedAt: T1,
+  });
+
+  it("回数だけを変え、最後に作った日は変えない", () => {
+    expect(cookedCountPatch(cooked(5), 3)).toEqual({ cookedCount: 3 });
+  });
+
+  it("0回にしたら、最後に作った日も空にして記録なしに戻す", () => {
+    expect(cookedCountPatch(cooked(1), 0)).toEqual({ cookedCount: 0, lastCookedAt: null });
+    expect(cookedCountPatch(cooked(1), -1)).toEqual({ cookedCount: 0, lastCookedAt: null });
+  });
+
+  it("記録がない料理の回数は増やさない（日付のない記録を作らない）", () => {
+    expect(cookedCountPatch(syncedDish(), 1)).toEqual({});
   });
 });
