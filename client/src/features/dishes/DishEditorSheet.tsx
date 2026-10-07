@@ -1,5 +1,4 @@
 import { addTag, DISH_LIMITS, type DishContentInput, isRecipeUrl } from "@dish-list/shared";
-import { useLiveQuery } from "dexie-react-hooks";
 import { useState } from "react";
 import { BottomSheet } from "../../components/BottomSheet";
 import { Button } from "../../components/Button";
@@ -8,16 +7,15 @@ import { Field, TextArea, TextInput } from "../../components/Field";
 import { StarIcon } from "../../components/icons";
 import { useToast } from "../../components/Toast";
 import type { LocalDish } from "../../db/database";
-import { createDish, deleteDish, getDish, updateDish } from "../../db/dishRepository";
+import { createDish, deleteDish, updateDish } from "../../db/dishRepository";
 import { formatDateTime } from "../../lib/formatDateTime";
 import { useActor } from "../session/session";
-import { CookButton } from "./CookButton";
-import { describeCooking } from "./cookingLabel";
+import { CookingSection } from "./CookingSection";
 import { findSameNameDish, type TagSummary } from "./dishListQuery";
 import { TagEditor } from "./TagEditor";
 
 /**
- * 料理の追加・編集・削除のシート（F-01〜F-03、F-07、F-08、F-15〜F-17、F-19、F-20）。
+ * 料理の追加・編集・削除のシート（F-01〜F-03、F-07、F-08、F-15〜F-17、F-19〜F-21）。
  * dish が null なら新規追加。開くたびに key を変えて作り直し、入力をリセットする前提。
  */
 
@@ -201,23 +199,5 @@ export function DishEditorSheet({
         onCancel={() => setConfirmingDelete(false)}
       />
     </>
-  );
-}
-
-/**
- * 作った記録（F-16、F-17）。「作った」を押すとすぐに保存されるので、
- * シートを開いたときの値ではなく、データベースの最新の値を表示する。
- */
-function CookingSection({ dish }: { dish: LocalDish }) {
-  const latest = useLiveQuery(() => getDish(dish.id), [dish.id]) ?? dish;
-  return (
-    <Field label="作った記録" htmlFor="dish-cooked">
-      <div className="flex items-center justify-between gap-3 rounded-md bg-surface-muted py-2 pr-2 pl-3.5">
-        <span id="dish-cooked" className="text-sm text-text-sub">
-          {describeCooking(latest) ?? "まだ記録がありません"}
-        </span>
-        <CookButton dish={latest} />
-      </div>
-    </Field>
   );
 }

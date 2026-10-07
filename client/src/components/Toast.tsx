@@ -12,6 +12,15 @@ import { createContext, type ReactNode, useCallback, useContext, useRef, useStat
 const DISPLAY_MS = 1800;
 const DISPLAY_WITH_ACTION_MS = 4000;
 
+/** 文言だけ：文言に合わせた幅のピル型 */
+const MESSAGE_ONLY_CLASSES = "max-w-[calc(100%-32px)] rounded-full px-4 py-2.5";
+/**
+ * ボタン付き：押しやすいよう、画面の左右16pxを空けた幅（最大はコンテンツの幅）に広げる。
+ * 文言が長いときは折り返し、ボタンは右端に置く
+ */
+const WITH_ACTION_CLASSES =
+  "w-[calc(100%-32px)] max-w-[448px] justify-between rounded-lg py-2 pr-2 pl-4";
+
 export interface ToastAction {
   label: string;
   onClick: () => void;
@@ -46,9 +55,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div
         role="status"
-        className={`fixed bottom-[calc(96px+env(safe-area-inset-bottom))] left-1/2 z-50 flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-3 rounded-full bg-text py-2.5 text-[13px] text-bg transition duration-200 ${toast.action ? "pr-2 pl-4" : "px-4"} ${visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-5 opacity-0"}`}
+        className={`fixed bottom-[calc(96px+env(safe-area-inset-bottom))] left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 bg-text text-[13px] text-bg transition duration-200 ${toast.action ? WITH_ACTION_CLASSES : MESSAGE_ONLY_CLASSES} ${visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-5 opacity-0"}`}
       >
-        <span>{toast.message}</span>
+        <span className="min-w-0 break-words">{toast.message}</span>
         {toast.action && (
           <button
             type="button"
