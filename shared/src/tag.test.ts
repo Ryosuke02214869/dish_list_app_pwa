@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DISH_LIMITS } from "./limits";
-import { addTag, includesTag, toTagLabel } from "./tag";
+import { addTag, includesTag, removeTagFromList, renameTagInList, toTagLabel } from "./tag";
 
 describe("toTagLabel", () => {
   it("先頭の # と前後の空白を除去する", () => {
@@ -57,5 +57,38 @@ describe("addTag", () => {
   it("上限の個数に達していたら加えない", () => {
     const full = Array.from({ length: DISH_LIMITS.tagsMaxCount }, (_, i) => `tag${i}`);
     expect(addTag(full, "新しいタグ")).toEqual(full);
+  });
+});
+
+describe("renameTagInList", () => {
+  it("表記ゆれも含めて、そのタグの名前を変える（並び順は保つ）", () => {
+    expect(renameTagInList(["和食", "カレー", "主菜"], "かれー", "カレーライス")).toEqual([
+      "和食",
+      "カレーライス",
+      "主菜",
+    ]);
+    expect(renameTagInList(["かれー"], "かれー", "カレー")).toEqual(["カレー"]);
+  });
+
+  it("ほかのタグと同じ名前になったら1つにまとめる（統合）", () => {
+    expect(renameTagInList(["和食", "わしょく系", "主菜"], "わしょく系", "和食")).toEqual([
+      "和食",
+      "主菜",
+    ]);
+  });
+
+  it("対象のタグがなければ変えない", () => {
+    expect(renameTagInList(["和食"], "中華", "中華料理")).toEqual(["和食"]);
+  });
+
+  it("新しい名前は表示用に整え、空なら変えない", () => {
+    expect(renameTagInList(["カレー"], "かれー", " #カレー ")).toEqual(["カレー"]);
+    expect(renameTagInList(["カレー"], "かれー", " # ")).toEqual(["カレー"]);
+  });
+});
+
+describe("removeTagFromList", () => {
+  it("表記ゆれも含めて、そのタグを外す", () => {
+    expect(removeTagFromList(["和食", "カレー", "かれー"], "かれー")).toEqual(["和食"]);
   });
 });

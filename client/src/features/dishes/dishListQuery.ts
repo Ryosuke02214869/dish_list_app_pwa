@@ -32,6 +32,8 @@ export interface TagSummary {
   key: string;
   /** 画面に出す表記（同じキーで表記が複数あるときは、最も多く使われているもの） */
   label: string;
+  /** 使われているすべての表記（多く使われている順）。2つ以上なら表記ゆれがある */
+  labels: string[];
   count: number;
 }
 
@@ -95,17 +97,16 @@ export function summarizeTags(dishes: readonly LocalDish[]): TagSummary[] {
     }
   }
   return [...byKey.entries()]
-    .map(([key, { count, labelCounts }]) => ({ key, label: mostUsedLabel(labelCounts), count }))
+    .map(([key, { count, labelCounts }]) => {
+      const labels = labelsByUsage(labelCounts);
+      return { key, label: labels[0] ?? key, labels, count };
+    })
     .sort((a, b) => b.count - a.count || japaneseCollator.compare(a.label, b.label));
 }
 
-function mostUsedLabel(labelCounts: Map<string, number>): string {
-  let best = "";
-  let bestCount = 0;
-  for (const [label, count] of labelCounts) {
-    if (count > bestCount) [best, bestCount] = [label, count];
-  }
-  return best;
+/** 表記を、多く使われている順に並べる（同数なら先に出てきた順） */
+function labelsByUsage(labelCounts: Map<string, number>): string[] {
+  return [...labelCounts.entries()].sort((a, b) => b[1] - a[1]).map(([label]) => label);
 }
 
 /** 正規化後に同じ名前の料理があれば返す（F-08）。編集中の料理自身は除く */

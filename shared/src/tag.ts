@@ -27,3 +27,25 @@ export function addTag(tags: readonly string[], raw: string): string[] {
   }
   return [...tags, label];
 }
+
+/**
+ * タグの名前を変えた一覧を返す（REQUIREMENTS.md 19.1 F-23、F-24）。
+ * fromKey（正規化したキー）に当たるタグを、表記ゆれも含めてすべて newLabel にする。
+ * 変更の結果、同じタグが2つになったら1つにする（統合）。元の配列は変更しない。
+ */
+export function renameTagInList(
+  tags: readonly string[],
+  fromKey: string,
+  newLabel: string,
+): string[] {
+  const label = toTagLabel(newLabel);
+  if (label === "") return [...tags];
+  return tags
+    .map((tag) => (normalize(tag) === fromKey ? label : tag))
+    .reduce<string[]>((result, tag) => (includesTag(result, tag) ? result : [...result, tag]), []);
+}
+
+/** fromKey（正規化したキー）に当たるタグを、表記ゆれも含めて外した一覧を返す（F-25） */
+export function removeTagFromList(tags: readonly string[], key: string): string[] {
+  return tags.filter((tag) => normalize(tag) !== key);
+}

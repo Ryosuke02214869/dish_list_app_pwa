@@ -107,10 +107,10 @@ describe("filterAndSortDishes", () => {
 describe("summarizeTags", () => {
   it("使用回数の多い順に集計する（同数なら名前順。かなは漢字より前）", () => {
     expect(summarizeTags(all)).toEqual([
-      { key: "主菜", label: "主菜", count: 2 },
-      { key: "和食", label: "和食", count: 2 },
-      { key: "めん", label: "めん", count: 1 },
-      { key: "洋食", label: "洋食", count: 1 },
+      { key: "主菜", label: "主菜", labels: ["主菜"], count: 2 },
+      { key: "和食", label: "和食", labels: ["和食"], count: 2 },
+      { key: "めん", label: "めん", labels: ["めん"], count: 1 },
+      { key: "洋食", label: "洋食", labels: ["洋食"], count: 1 },
     ]);
   });
 
@@ -120,7 +120,9 @@ describe("summarizeTags", () => {
       dish({ tags: ["かれー"] }),
       dish({ tags: ["カレー"] }),
     ];
-    expect(summarizeTags(dishes)).toEqual([{ key: "かれー", label: "カレー", count: 3 }]);
+    expect(summarizeTags(dishes)).toEqual([
+      { key: "かれー", label: "カレー", labels: ["カレー", "かれー"], count: 3 },
+    ]);
   });
 });
 
