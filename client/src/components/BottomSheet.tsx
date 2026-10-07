@@ -5,9 +5,17 @@ import { useOverlay, usePresence } from "./overlay";
 /**
  * 下から出るシート（DESIGN.md 5章 BottomSheet）。新規・編集・設定の画面に使う。
  * スクリム、Esc、閉じるボタンで閉じる。本文はスクロールし、フッターは下に固定する。
+ * PC（幅768px以上）では、画面中央のダイアログとして出す（DESIGN.md 9章）。
  */
 
 const ANIMATION_MS = 250;
+
+/** 位置と形。スマホは下に固定、PC は中央に置く */
+const LAYOUT_CLASSES =
+  "bottom-0 max-h-[92dvh] max-w-app rounded-t-xl md:top-1/2 md:bottom-auto md:max-h-[85dvh] md:max-w-[560px] md:-translate-y-1/2 md:rounded-xl";
+/** 開いた状態と閉じた状態。スマホは下からスライド、PC はフェードとわずかな拡大 */
+const SHOWN_CLASSES = "translate-y-0 md:scale-100 md:opacity-100";
+const HIDDEN_CLASSES = "translate-y-full md:scale-95 md:opacity-0";
 
 interface BottomSheetProps {
   open: boolean;
@@ -35,9 +43,9 @@ export function BottomSheet({ open, title, onClose, children, footer }: BottomSh
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`fixed bottom-0 left-1/2 z-31 flex max-h-[92dvh] w-full max-w-app -translate-x-1/2 flex-col rounded-t-xl bg-surface shadow-sheet transition-transform duration-250 ease-sheet ${shown ? "translate-y-0" : "translate-y-full"}`}
+        className={`fixed left-1/2 z-31 flex w-full -translate-x-1/2 flex-col bg-surface shadow-sheet transition-[translate,scale,opacity] duration-250 ease-sheet ${LAYOUT_CLASSES} ${shown ? SHOWN_CLASSES : HIDDEN_CLASSES}`}
       >
-        <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-border" aria-hidden />
+        <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-border md:hidden" aria-hidden />
         <header className="flex items-center justify-between px-gutter pt-3 pb-1">
           <h2 id={titleId} className="text-lg font-bold">
             {title}

@@ -20,7 +20,7 @@ export function DishListPage() {
   const settings = useSheet();
 
   return (
-    <div className="mx-auto min-h-dvh max-w-app pb-[calc(96px+env(safe-area-inset-bottom))]">
+    <div className="mx-auto min-h-dvh max-w-app pb-[calc(96px+env(safe-area-inset-bottom))] md:max-w-wide">
       <AppBar
         actions={
           <>
@@ -54,8 +54,9 @@ export function DishListPage() {
         <SortSelect value={list.sort} onChange={list.setSort} />
       </div>
 
+      {/* PC では2列（幅768px以上）・3列（幅1024px以上）に並べる（DESIGN.md 9章） */}
       {list.allDishes === undefined ? null : list.visibleDishes.length > 0 ? (
-        <ul className="grid gap-3 px-gutter">
+        <ul className="grid gap-3 px-gutter md:grid-cols-2 lg:grid-cols-3">
           {list.visibleDishes.map((dish) => (
             <li key={dish.id}>
               <DishCard dish={dish} onOpen={editor.openWith} />

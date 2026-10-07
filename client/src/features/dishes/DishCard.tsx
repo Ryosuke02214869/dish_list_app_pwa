@@ -15,11 +15,11 @@ export function DishCard({ dish, onOpen }: { dish: LocalDish; onOpen: (dish: Loc
   const cooking = describeCooking(dish);
 
   return (
-    <div className="relative rounded-lg bg-surface shadow-card">
+    <div className="relative h-full rounded-lg bg-surface shadow-card">
       <button
         type="button"
         onClick={() => onOpen(dish)}
-        className="block w-full rounded-lg p-4 text-left transition-transform duration-100 active:scale-[.985]"
+        className="block h-full w-full rounded-lg p-4 text-left transition-transform duration-100 active:scale-[.985]"
       >
         {/* 右上の「作った」ボタンと重ならないよう、料理名の右側をあけておく */}
         <p className="mb-1.5 flex items-center gap-1.5 pr-24 text-[17px] leading-[1.4] font-bold">
