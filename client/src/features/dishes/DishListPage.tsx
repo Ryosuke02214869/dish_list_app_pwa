@@ -68,15 +68,20 @@ export function DishListPage() {
 
       <Fab label="追加" onClick={() => editor.openWith(null)} />
 
+      {/* key は開くたびに変わる番号。2つのシートは同じ親に並ぶので、番号が重ならないよう名前を付ける */}
       <DishEditorSheet
-        key={editor.key}
+        key={`editor-${editor.key}`}
         open={editor.open}
         dish={editor.target ?? null}
         onClose={editor.close}
         allDishes={list.allDishes ?? []}
         knownTags={list.tags}
       />
-      <SettingsSheet key={settings.key} open={settings.open} onClose={settings.close} />
+      <SettingsSheet
+        key={`settings-${settings.key}`}
+        open={settings.open}
+        onClose={settings.close}
+      />
     </div>
   );
 }
