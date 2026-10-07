@@ -112,14 +112,6 @@
 - **タグの管理**：設定のシートの「タグの管理」から開く全画面のページ。上部に「← 戻る」と見出し、下に TagAdminRow の一覧。変更と削除は ConfirmDialog／PromptDialog で確認する
 - **初回起動**：全画面。中央に大きめのアプリアイコンとアプリ名、短い説明、名前入力、下部に Primary ボタン「はじめる」。続けて「ホーム画面に追加」の手順（Safari：共有 → ホーム画面に追加）を図解したカード
 
-## 9. PC（幅の広い画面）
-
-- 幅 768px 以上を「PC」として扱う（Tailwind の ）。768px 未満のスマホの表示は変えない
-- 内容の最大幅は 1080px（トークン ）。AppBar の中身も同じ幅にそろえる
-- 料理のカードは、768px 以上で2列、1024px 以上で3列に並べる（間隔 12px）
-- BottomSheet は、768px 以上では画面中央のダイアログにする：幅は最大 560px、四隅を 、最大高さ 85dvh、ハンドルは出さない。開閉はフェード＋わずかな拡大
-- FAB は、内容の右端（1080px の右端）にそろえる
-
 ## 7. 動き
 
 - 時間は 0.1〜0.25秒。シートは `cubic-bezier(.2,.8,.2,1)` で下からスライド
@@ -145,3 +137,11 @@ fontFamily: { sans: ["Noto Sans JP", "-apple-system", "BlinkMacSystemFont", "Hir
 
 - PWA の `manifest`：`theme_color: "#F4F6F7"`、`background_color: "#F4F6F7"`、アイコンは primary 背景に白いお椀のマーク（サンプルの `brand-mark` の SVG を元に作成）
 - サンプルの JavaScript は見た目確認用のモック。データ処理は REQUIREMENTS.md と CLAUDE.md に従って実装し直すこと
+
+## 9. PC（幅の広い画面。REQUIREMENTS.md 19.2）
+
+- 幅 768px 以上を「PC」として扱う（Tailwind の `md:`）。768px 未満のスマホの表示は変えない
+- 内容の最大幅は 1080px（トークン `container-wide`、クラス `md:max-w-wide`）。AppBar の中身も同じ幅にそろえる
+- 料理のカードは、768px 以上で2列、1024px 以上で3列に並べる（間隔 12px）
+- BottomSheet は、768px 以上では画面中央のダイアログにする：幅は最大 560px、四隅を `radius-xl`、最大高さ 85dvh、ハンドルは出さない。開閉はフェード＋わずかな拡大
+- FAB は、内容の右端（1080px の右端）にそろえる
