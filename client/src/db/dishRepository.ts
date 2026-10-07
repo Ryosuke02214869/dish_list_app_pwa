@@ -1,6 +1,6 @@
-import type { DishContentInput } from "@dish-list/shared";
+import type { DishContentInput, DishCooking } from "@dish-list/shared";
 import { db, type LocalDish } from "./database";
-import { type Actor, applyPatch, buildNewDish, type DishPatch } from "./dishRecord";
+import { type Actor, applyPatch, buildNewDish, cookedPatch, type DishPatch } from "./dishRecord";
 import { notifyLocalChange } from "./localChanges";
 
 /**
@@ -34,11 +34,41 @@ export function deleteDish(id: string, actor: Actor): Promise<void> {
   return patchDish(id, { deleted: true }, actor);
 }
 
-async function patchDish(id: string, patch: DishPatch, actor: Actor): Promise<void> {
+/**
+ * 「作った」を記録する（F-16）。取り消しに使えるよう、記録する前の値を返す。
+ */
+export async function markCooked(id: string, actor: Actor): Promise<DishCooking> {
+  let previous: DishCooking = { cookedCount: 0, lastCookedAt: null };
+  await patchDish(
+    id,
+    (current) => {
+      previous = { cookedCount: current.cookedCount, lastCookedAt: current.lastCookedAt };
+      return cookedPatch(current, new Date().toISOString());
+    },
+    actor,
+  );
+  return previous;
+}
+
+/** 「作った」の記録を、markCooked が返した値に戻す（取り消し） */
+export function restoreCooking(id: string, previous: DishCooking, actor: Actor): Promise<void> {
+  return patchDish(id, previous, actor);
+}
+
+/**
+ * 1件を読み、変更して書き戻す。patch に関数を渡すと、今の値をもとに変更を決められる
+ * （読み出しと書き込みの間にほかの変更が入らないよう、1つのトランザクションで行う）。
+ */
+async function patchDish(
+  id: string,
+  patch: DishPatch | ((current: LocalDish) => DishPatch),
+  actor: Actor,
+): Promise<void> {
   await db.transaction("rw", db.dishes, async () => {
     const current = await db.dishes.get(id);
     if (!current) throw new Error(`料理が見つかりません: ${id}`);
-    await db.dishes.put(applyPatch(current, patch, actor));
+    const changes = typeof patch === "function" ? patch(current) : patch;
+    await db.dishes.put(applyPatch(current, changes, actor));
   });
   notifyLocalChange();
 }

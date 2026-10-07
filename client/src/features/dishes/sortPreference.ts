@@ -6,7 +6,7 @@ import type { SortOrder } from "./dishListQuery";
  */
 
 const STORAGE_KEY = "dish-list:sort-order";
-const SORT_ORDERS: readonly SortOrder[] = ["updated", "name"];
+const SORT_ORDERS: readonly SortOrder[] = ["updated", "name", "notRecentlyCooked"];
 const DEFAULT_SORT_ORDER: SortOrder = "updated";
 
 export function loadSortOrder(): SortOrder {

@@ -58,6 +58,11 @@ export function buildNewDish(
   };
 }
 
+/** 「作った」を1回記録する変更（F-16） */
+export function cookedPatch(dish: LocalDish, now: string): DishPatch {
+  return { cookedCount: dish.cookedCount + 1, lastCookedAt: now };
+}
+
 export function applyPatch(
   dish: LocalDish,
   patch: DishPatch,

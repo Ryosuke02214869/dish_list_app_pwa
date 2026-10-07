@@ -2,16 +2,19 @@ import { normalize } from "@dish-list/shared";
 import type { LocalDish } from "../../db/database";
 
 /**
- * 一覧の検索・タグ絞り込み・並び替え・タグ集計（F-04〜F-06、F-08、5.2）。
+ * 一覧の検索・タグ絞り込み・並び替え・タグ集計（F-04〜F-06、F-08、F-18、F-19、5.2）。
  * 画面に依存しない純粋な関数にして、テストで動きを確かめられるようにしている。
  */
 
-export type SortOrder = "updated" | "name";
+/** 並び順。updated：更新が新しい順／name：名前順／notRecentlyCooked：最近作っていない順 */
+export type SortOrder = "updated" | "name" | "notRecentlyCooked";
 
 export interface DishListFilter {
   keyword: string;
   /** 選択中のタグ（正規化したキー）。すべてを含む料理だけを残す（AND条件） */
   tagKeys: ReadonlySet<string>;
+  /** true ならお気に入りだけを残す（タグとAND条件） */
+  favoritesOnly: boolean;
   sort: SortOrder;
 }
 
@@ -51,6 +54,7 @@ export function filterAndSortDishes(
     .filter(
       (entry) =>
         (keyword === "" || entry.nameKey.includes(keyword) || entry.memoKey.includes(keyword)) &&
+        (!filter.favoritesOnly || entry.dish.favorite) &&
         [...filter.tagKeys].every((key) => entry.tagKeys.has(key)),
     )
     .map((entry) => entry.dish)
@@ -61,10 +65,21 @@ const japaneseCollator = new Intl.Collator("ja");
 
 const byUpdatedDesc = (a: LocalDish, b: LocalDish) => b.updatedAt.localeCompare(a.updatedAt);
 
+const byName = (a: LocalDish, b: LocalDish) => japaneseCollator.compare(a.name, b.name);
+
+/** まだ作っていない料理を先に、その後は最後に作った日時が古い順（F-18） */
+const byLastCookedAsc = (a: LocalDish, b: LocalDish) => {
+  if (a.lastCookedAt === b.lastCookedAt) return 0;
+  if (a.lastCookedAt === null) return -1;
+  if (b.lastCookedAt === null) return 1;
+  return a.lastCookedAt.localeCompare(b.lastCookedAt);
+};
+
 const COMPARATORS: Record<SortOrder, (a: LocalDish, b: LocalDish) => number> = {
   updated: byUpdatedDesc,
   // 漢字は読みで並ばない（REQUIREMENTS.md 16章）。同じ名前なら更新が新しい順
-  name: (a, b) => japaneseCollator.compare(a.name, b.name) || byUpdatedDesc(a, b),
+  name: (a, b) => byName(a, b) || byUpdatedDesc(a, b),
+  notRecentlyCooked: (a, b) => byLastCookedAsc(a, b) || byName(a, b),
 };
 
 /** タグを集計し、使用回数の多い順に返す（5.2） */

@@ -81,6 +81,7 @@ export function DishListPage() {
 const SORT_LABELS: Record<SortOrder, string> = {
   updated: "更新が新しい順",
   name: "名前順（五十音）",
+  notRecentlyCooked: "最近作っていない順",
 };
 
 function SortSelect({ value, onChange }: { value: SortOrder; onChange: (v: SortOrder) => void }) {

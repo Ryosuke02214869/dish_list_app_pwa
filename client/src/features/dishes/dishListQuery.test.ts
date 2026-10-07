@@ -33,6 +33,9 @@ const nikujaga = dish({
   name: "肉じゃが",
   memo: "メークインを使う",
   tags: ["和食", "主菜"],
+  favorite: true,
+  cookedCount: 3,
+  lastCookedAt: "2026-10-01T00:00:00.000Z",
   updatedAt: "2026-10-04T00:00:00.000Z",
 });
 const curryUdon = dish({
@@ -44,6 +47,9 @@ const keemaCurry = dish({
   name: "キーマカレー",
   memo: "冷凍OK",
   tags: ["洋食", "主菜"],
+  favorite: true,
+  cookedCount: 1,
+  lastCookedAt: "2026-09-20T00:00:00.000Z",
   updatedAt: "2026-10-03T00:00:00.000Z",
 });
 const all = [nikujaga, curryUdon, keemaCurry];
@@ -52,6 +58,7 @@ const run = (filter: Partial<DishListFilter>) =>
   filterAndSortDishes(indexDishes(all), {
     keyword: "",
     tagKeys: new Set(),
+    favoritesOnly: false,
     sort: "updated",
     ...filter,
   }).map((d) => d.name);
@@ -81,6 +88,19 @@ describe("filterAndSortDishes", () => {
 
   it("名前順で並べられる", () => {
     expect(run({ sort: "name" })).toEqual(["かれーうどん", "キーマカレー", "肉じゃが"]);
+  });
+
+  it("最近作っていない順：まだ作っていない料理が先、その後は作った日が古い順", () => {
+    expect(run({ sort: "notRecentlyCooked" })).toEqual([
+      "かれーうどん",
+      "キーマカレー",
+      "肉じゃが",
+    ]);
+  });
+
+  it("お気に入りだけに絞り込める（タグとAND条件）", () => {
+    expect(run({ favoritesOnly: true })).toEqual(["肉じゃが", "キーマカレー"]);
+    expect(run({ favoritesOnly: true, tagKeys: new Set(["和食"]) })).toEqual(["肉じゃが"]);
   });
 });
 

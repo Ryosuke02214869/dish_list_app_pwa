@@ -19,10 +19,15 @@ export function useDishList() {
   const dishes = useLiveQuery(listActiveDishes);
   const [keyword, setKeyword] = useState("");
   const [selectedTagKeys, setSelectedTagKeys] = useState<ReadonlySet<string>>(new Set());
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [sort, setSortState] = useState<SortOrder>(loadSortOrder);
 
   const indexed = useMemo(() => indexDishes(dishes ?? []), [dishes]);
   const tags: TagSummary[] = useMemo(() => summarizeTags(dishes ?? []), [dishes]);
+  const favoriteCount = useMemo(
+    () => (dishes ?? []).filter((dish) => dish.favorite).length,
+    [dishes],
+  );
 
   // 料理の削除などで使われなくなったタグは、選択から外して扱う
   const activeTagKeys = useMemo(() => {
@@ -31,8 +36,8 @@ export function useDishList() {
   }, [tags, selectedTagKeys]);
 
   const visibleDishes: LocalDish[] = useMemo(
-    () => filterAndSortDishes(indexed, { keyword, tagKeys: activeTagKeys, sort }),
-    [indexed, keyword, activeTagKeys, sort],
+    () => filterAndSortDishes(indexed, { keyword, tagKeys: activeTagKeys, favoritesOnly, sort }),
+    [indexed, keyword, activeTagKeys, favoritesOnly, sort],
   );
 
   const toggleTag = (key: string) => {
@@ -56,6 +61,9 @@ export function useDishList() {
     setKeyword,
     selectedTagKeys: activeTagKeys,
     toggleTag,
+    favoritesOnly,
+    toggleFavoritesOnly: () => setFavoritesOnly((current) => !current),
+    favoriteCount,
     sort,
     setSort,
   };
