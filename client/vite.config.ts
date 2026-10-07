@@ -5,8 +5,11 @@ import { defineConfig } from "vitest/config";
 import rootPackage from "../package.json" with { type: "json" };
 import { pwaOptions } from "./pwa.config";
 
-/** 開発時に /api を転送するサーバー（server/ を起動したときのアドレス） */
-const API_SERVER = "http://127.0.0.1:8080";
+/**
+ * 開発時に /api を転送するサーバー（npm run dev で起動する server）。
+ * 本番のコンテナ（8080）とは別のポートにして、開発中の通信が本番に届かないようにする
+ */
+const API_SERVER = "http://127.0.0.1:8787";
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), VitePWA(pwaOptions)],

@@ -33,7 +33,7 @@ iPhone（PWA・IndexedDB）──HTTPS（Tailscale）──▶ Windows PC
 
 ```powershell
 npm install
-npm run dev        # http://localhost:5173 （server は http://127.0.0.1:8080、データは server/data/）
+npm run dev        # http://localhost:5173 （server は http://127.0.0.1:8787、データは server/data/）
 npm test           # すべてのテスト
 npm run typecheck  # 型チェック
 npm run lint       # ESLint

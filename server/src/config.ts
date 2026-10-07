@@ -21,7 +21,9 @@ export interface ServerConfig {
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   return {
     host: env.HOST ?? "127.0.0.1",
-    port: Number(env.PORT ?? 8080),
+    // 既定は開発用の 8787。本番（Docker）は Dockerfile で PORT=8080 を指定する。
+    // 開発中の通信が、同じPCで動いている本番のコンテナ（8080）に届かないようにするため
+    port: Number(env.PORT ?? 8787),
     dataDir: path.resolve(env.DATA_DIR ?? "data"),
     staticDir: env.STATIC_DIR ? path.resolve(env.STATIC_DIR) : undefined,
     backup: env.BACKUP_DIR

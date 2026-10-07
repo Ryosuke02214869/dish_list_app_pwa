@@ -27,7 +27,7 @@
 ## コマンド（作成後に実際の内容へ更新すること）
 
 - `npm install`
-- `npm run dev`：clientとserverを同時に起動する（http://localhost:5173 。`/api` はViteのプロキシで http://127.0.0.1:8080 へ転送。データは `server/data/`）
+- `npm run dev`：clientとserverを同時に起動する（http://localhost:5173 。`/api` はViteのプロキシで http://127.0.0.1:8787 へ転送。データは `server/data/`）。本番のコンテナ（8080）とはポートを分けている。片方が起動に失敗したら両方止まる
 - `npm test`：全ワークスペースのVitestを実行する
 - `npm run typecheck`：全ワークスペースの型チェック
 - `npm run lint` / `npm run format`（確認だけなら `npm run format:check`）
