@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto";
-import type { SyncResponse } from "@dish-list/shared";
+import { DISH_PHASE2_DEFAULTS, type SyncResponse } from "@dish-list/shared";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "./database";
 import { createDish, getDish, updateDish } from "./dishRepository";
@@ -84,6 +84,7 @@ describe("applySyncResponse", () => {
             name: "豚汁",
             memo: "",
             tags: ["和食"],
+            ...DISH_PHASE2_DEFAULTS,
             createdAt: "2026-10-04T10:00:00.000Z",
             createdBy: "パパ",
             updatedAt: "2026-10-04T10:00:00.000Z",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type Dish, dishSchema } from "./dish";
+import { type Dish, DISH_PHASE2_DEFAULTS, dishSchema, isRecipeUrl } from "./dish";
 import { DISH_LIMITS } from "./limits";
 
 const validDish: Dish = {
@@ -7,6 +7,10 @@ const validDish: Dish = {
   name: "肉じゃが",
   memo: "みりん多めが好評",
   tags: ["和食", "主菜"],
+  favorite: true,
+  recipeUrl: "https://example.com/nikujaga",
+  cookedCount: 3,
+  lastCookedAt: "2026-10-03T10:00:00.000Z",
   createdAt: "2026-10-04T11:15:00.000Z",
   createdBy: "ママ",
   updatedAt: "2026-10-04T11:15:00.000Z",
@@ -62,5 +66,33 @@ describe("dishSchema", () => {
   it("定義にない項目は取り除く", () => {
     const result = dishSchema.parse({ ...validDish, dirty: true });
     expect(result).not.toHaveProperty("dirty");
+  });
+
+  it("フェーズ2の項目がない古いデータは、既定値で補う", () => {
+    const { favorite: _f, recipeUrl: _r, cookedCount: _c, lastCookedAt: _l, ...legacy } = validDish;
+    expect(dishSchema.parse(legacy)).toEqual({ ...legacy, ...DISH_PHASE2_DEFAULTS });
+  });
+
+  it("参考レシピのURLは空か、http(s) のURLだけを受け付ける", () => {
+    expect(parse({ recipeUrl: "" }).success).toBe(true);
+    expect(parse({ recipeUrl: "http://example.com" }).success).toBe(true);
+    expect(parse({ recipeUrl: "example.com" }).success).toBe(false);
+    expect(parse({ recipeUrl: "javascript:alert(1)" }).success).toBe(false);
+    const tooLong = `https://example.com/${"a".repeat(DISH_LIMITS.recipeUrlMaxLength)}`;
+    expect(parse({ recipeUrl: tooLong }).success).toBe(false);
+  });
+
+  it("作った回数は0以上の整数、最後に作った日時は ISO 8601 か null", () => {
+    expect(parse({ cookedCount: -1 }).success).toBe(false);
+    expect(parse({ lastCookedAt: null }).success).toBe(true);
+    expect(parse({ lastCookedAt: "きのう" }).success).toBe(false);
+  });
+});
+
+describe("isRecipeUrl", () => {
+  it("http と https の絶対URLだけを認める", () => {
+    expect(isRecipeUrl("https://cookpad.com/recipe/1")).toBe(true);
+    expect(isRecipeUrl("ftp://example.com")).toBe(false);
+    expect(isRecipeUrl("/recipe/1")).toBe(false);
   });
 });

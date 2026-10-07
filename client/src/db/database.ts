@@ -1,4 +1,4 @@
-import type { Dish } from "@dish-list/shared";
+import { type Dish, DISH_PHASE2_DEFAULTS } from "@dish-list/shared";
 import { Dexie, type EntityTable } from "dexie";
 
 /**
@@ -42,3 +42,17 @@ db.version(1).stores({
   dishes: "id, serverSeq",
   meta: "key",
 });
+
+// 2：フェーズ2の項目（REQUIREMENTS.md 18.2）。インデックスは変えず、保存済みの料理に既定値を補う
+db.version(2)
+  .stores({ dishes: "id, serverSeq", meta: "key" })
+  .upgrade((tx) =>
+    tx
+      .table<LocalDish, string>("dishes")
+      .toCollection()
+      .modify((dish) => {
+        for (const [key, value] of Object.entries(DISH_PHASE2_DEFAULTS)) {
+          if (!(key in dish)) Object.assign(dish, { [key]: value });
+        }
+      }),
+  );

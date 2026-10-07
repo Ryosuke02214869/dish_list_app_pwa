@@ -11,6 +11,8 @@ export const DISH_LIMITS = {
   tagsMaxCount: 10,
   /** 1つのタグの最大文字数（REQUIREMENTS.md 16章） */
   tagMaxLength: 20,
+  /** 参考レシピのURLの最大文字数（REQUIREMENTS.md 18.1） */
+  recipeUrlMaxLength: 2000,
   /** 利用者名の最大文字数 */
   userNameMaxLength: 30,
 } as const;

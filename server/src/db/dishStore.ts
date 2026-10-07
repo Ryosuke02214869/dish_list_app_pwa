@@ -12,6 +12,10 @@ interface DishRow {
   name: string;
   memo: string;
   tags: string;
+  favorite: number;
+  recipe_url: string;
+  cooked_count: number;
+  last_cooked_at: string | null;
   created_at: string;
   created_by: string;
   updated_at: string;
@@ -28,6 +32,10 @@ function toDish(row: DishRow): Dish {
     name: row.name,
     memo: row.memo,
     tags: JSON.parse(row.tags) as string[],
+    favorite: row.favorite === 1,
+    recipeUrl: row.recipe_url,
+    cookedCount: row.cooked_count,
+    lastCookedAt: row.last_cooked_at,
     createdAt: row.created_at,
     createdBy: row.created_by,
     updatedAt: row.updated_at,
@@ -45,6 +53,10 @@ function toRow(dish: Dish): DishRow {
     name: dish.name,
     memo: dish.memo,
     tags: JSON.stringify(dish.tags),
+    favorite: dish.favorite ? 1 : 0,
+    recipe_url: dish.recipeUrl,
+    cooked_count: dish.cookedCount,
+    last_cooked_at: dish.lastCookedAt,
     created_at: dish.createdAt,
     created_by: dish.createdBy,
     updated_at: dish.updatedAt,
@@ -64,12 +76,16 @@ export function createDishStore(db: SqliteDatabase) {
     "SELECT * FROM dishes WHERE server_seq > ? ORDER BY server_seq LIMIT ?",
   );
   const upsert = db.prepare<[DishRow]>(`
-    INSERT INTO dishes (id, name, memo, tags, created_at, created_by, updated_at, updated_by,
+    INSERT INTO dishes (id, name, memo, tags, favorite, recipe_url, cooked_count, last_cooked_at,
+                        created_at, created_by, updated_at, updated_by,
                         client_id, deleted, version, server_seq)
-    VALUES (@id, @name, @memo, @tags, @created_at, @created_by, @updated_at, @updated_by,
+    VALUES (@id, @name, @memo, @tags, @favorite, @recipe_url, @cooked_count, @last_cooked_at,
+            @created_at, @created_by, @updated_at, @updated_by,
             @client_id, @deleted, @version, @server_seq)
     ON CONFLICT (id) DO UPDATE SET
       name = excluded.name, memo = excluded.memo, tags = excluded.tags,
+      favorite = excluded.favorite, recipe_url = excluded.recipe_url,
+      cooked_count = excluded.cooked_count, last_cooked_at = excluded.last_cooked_at,
       created_at = excluded.created_at, created_by = excluded.created_by,
       updated_at = excluded.updated_at, updated_by = excluded.updated_by,
       client_id = excluded.client_id, deleted = excluded.deleted,

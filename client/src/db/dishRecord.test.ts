@@ -17,10 +17,21 @@ const syncedDish = (): LocalDish => ({
 });
 
 describe("sanitizeContent", () => {
-  it("料理名の前後の空白を除き、タグの表記と重複を整える", () => {
+  it("料理名の前後の空白を除き、タグの表記と重複を整え、省略された項目は既定値にする", () => {
     expect(
       sanitizeContent({ name: " 肉じゃが ", memo: " メモ ", tags: ["#カレー", "かれー", "  "] }),
-    ).toEqual({ name: "肉じゃが", memo: " メモ ", tags: ["カレー"] });
+    ).toEqual({
+      name: "肉じゃが",
+      memo: " メモ ",
+      tags: ["カレー"],
+      favorite: false,
+      recipeUrl: "",
+    });
+  });
+
+  it("URLの前後の空白を除く", () => {
+    const content = { name: "a", memo: "", tags: [], recipeUrl: " https://example.com " };
+    expect(sanitizeContent(content).recipeUrl).toBe("https://example.com");
   });
 });
 

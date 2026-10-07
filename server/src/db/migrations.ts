@@ -30,4 +30,11 @@ export const MIGRATIONS: readonly string[] = [
   );
   INSERT INTO meta (key, value) VALUES ('currentSeq', '0');
   `,
+  // 2: フェーズ2（REQUIREMENTS.md 18.2）。既存の行は既定値になる
+  `
+  ALTER TABLE dishes ADD COLUMN favorite       INTEGER NOT NULL DEFAULT 0;  -- 0 または 1
+  ALTER TABLE dishes ADD COLUMN recipe_url     TEXT    NOT NULL DEFAULT '';
+  ALTER TABLE dishes ADD COLUMN cooked_count   INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE dishes ADD COLUMN last_cooked_at TEXT;                        -- NULL ならまだ作っていない
+  `,
 ];

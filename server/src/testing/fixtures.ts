@@ -1,4 +1,4 @@
-import type { Dish, DishChange } from "@dish-list/shared";
+import { type Dish, type DishChange, DISH_PHASE2_DEFAULTS } from "@dish-list/shared";
 
 /** テスト用の料理と変更を作る */
 
@@ -15,6 +15,7 @@ export function makeDish(fields: Partial<Dish> = {}): Dish {
     name: "肉じゃが",
     memo: "",
     tags: [],
+    ...DISH_PHASE2_DEFAULTS,
     createdAt: at("10:00"),
     createdBy: "ママ",
     updatedAt: at("10:00"),

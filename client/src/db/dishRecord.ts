@@ -1,4 +1,10 @@
-import { addTag, type DishContent } from "@dish-list/shared";
+import {
+  addTag,
+  DISH_PHASE2_DEFAULTS,
+  type DishContent,
+  type DishContentInput,
+  type DishCooking,
+} from "@dish-list/shared";
 import type { LocalDish } from "./database";
 
 /**
@@ -12,25 +18,32 @@ export interface Actor {
   userName: string;
 }
 
-/** 料理への変更。編集する項目と、削除の印 */
-export type DishPatch = Partial<DishContent> & { deleted?: true };
+/** 料理への変更。編集する項目、作った記録、削除の印のうち、変えるものだけを指定する */
+export type DishPatch = Partial<DishContentInput> & Partial<DishCooking> & { deleted?: true };
 
-/** 保存する前に入力を整える（料理名の前後の空白、タグの表記と重複） */
-export function sanitizeContent(content: DishContent): DishContent {
+/**
+ * 保存する前に入力を整える（料理名とURLの前後の空白、タグの表記と重複）。
+ * 省略された項目（お気に入り、URL）は既定値にする。
+ */
+export function sanitizeContent(content: DishContentInput): DishContent {
   return {
-    ...content,
     name: content.name.trim(),
+    memo: content.memo,
     tags: content.tags.reduce<string[]>((tags, tag) => addTag(tags, tag), []),
+    favorite: content.favorite ?? DISH_PHASE2_DEFAULTS.favorite,
+    recipeUrl: (content.recipeUrl ?? DISH_PHASE2_DEFAULTS.recipeUrl).trim(),
   };
 }
 
 export function buildNewDish(
-  content: DishContent,
+  content: DishContentInput,
   actor: Actor,
   now: string = new Date().toISOString(),
 ): LocalDish {
   return {
     ...sanitizeContent(content),
+    cookedCount: DISH_PHASE2_DEFAULTS.cookedCount,
+    lastCookedAt: DISH_PHASE2_DEFAULTS.lastCookedAt,
     id: crypto.randomUUID(),
     createdAt: now,
     createdBy: actor.userName,
@@ -51,16 +64,20 @@ export function applyPatch(
   actor: Actor,
   now: string = new Date().toISOString(),
 ): LocalDish {
-  const { deleted, ...contentPatch } = patch;
+  const { deleted, cookedCount, lastCookedAt, ...contentPatch } = patch;
   const content = sanitizeContent({
     name: dish.name,
     memo: dish.memo,
     tags: dish.tags,
+    favorite: dish.favorite,
+    recipeUrl: dish.recipeUrl,
     ...contentPatch,
   });
   return {
     ...dish,
     ...content,
+    cookedCount: cookedCount ?? dish.cookedCount,
+    lastCookedAt: lastCookedAt === undefined ? dish.lastCookedAt : lastCookedAt,
     deleted: deleted ?? dish.deleted,
     updatedAt: now,
     updatedBy: actor.userName,

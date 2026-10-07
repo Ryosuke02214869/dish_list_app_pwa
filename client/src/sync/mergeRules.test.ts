@@ -1,4 +1,4 @@
-import type { Dish } from "@dish-list/shared";
+import { type Dish, DISH_PHASE2_DEFAULTS } from "@dish-list/shared";
 import { describe, expect, it } from "vitest";
 import type { LocalDish } from "../db/database";
 import { applyPushResult, mergeServerDish, type PushedSnapshot } from "./mergeRules";
@@ -12,6 +12,7 @@ const serverDish = (fields: Partial<Dish> = {}): Dish => ({
   name: "肉じゃが（サーバー）",
   memo: "",
   tags: [],
+  ...DISH_PHASE2_DEFAULTS,
   createdAt: T_PUSHED,
   createdBy: "ママ",
   updatedAt: T_PUSHED,

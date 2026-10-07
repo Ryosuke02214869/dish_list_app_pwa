@@ -1,4 +1,4 @@
-import type { DishContent } from "@dish-list/shared";
+import type { DishContentInput } from "@dish-list/shared";
 import { db, type LocalDish } from "./database";
 import { type Actor, applyPatch, buildNewDish, type DishPatch } from "./dishRecord";
 import { notifyLocalChange } from "./localChanges";
@@ -19,14 +19,14 @@ export function getDish(id: string): Promise<LocalDish | undefined> {
 }
 
 /** 料理を追加し、そのIDを返す */
-export async function createDish(content: DishContent, actor: Actor): Promise<string> {
+export async function createDish(content: DishContentInput, actor: Actor): Promise<string> {
   const dish = buildNewDish(content, actor);
   await db.dishes.add(dish);
   notifyLocalChange();
   return dish.id;
 }
 
-export function updateDish(id: string, content: DishContent, actor: Actor): Promise<void> {
+export function updateDish(id: string, content: DishContentInput, actor: Actor): Promise<void> {
   return patchDish(id, content, actor);
 }
 

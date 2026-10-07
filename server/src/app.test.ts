@@ -48,6 +48,20 @@ describe("POST /api/sync", () => {
     expect(body.lastSeq).toBe(1);
   });
 
+  it("更新前のアプリ（フェーズ2の項目なし）からの送信も受け付け、既定値で保存する", async () => {
+    const {
+      favorite: _f,
+      recipeUrl: _r,
+      cookedCount: _c,
+      lastCookedAt: _l,
+      ...legacy
+    } = makeChange();
+    const response = await postJson(setup(), { clientId: CLIENT_A, lastSeq: 0, changes: [legacy] });
+    expect(response.status).toBe(200);
+    const body = syncResponseSchema.parse(await response.json());
+    expect(body.changes[0]).toMatchObject({ favorite: false, recipeUrl: "", cookedCount: 0 });
+  });
+
   it("JSONとして読めなければ 400 を返す", async () => {
     const response = await postJson(setup(), "{ broken");
     expect(response.status).toBe(400);

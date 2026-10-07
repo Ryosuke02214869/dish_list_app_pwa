@@ -1,4 +1,4 @@
-import { addTag, DISH_LIMITS, type DishContent } from "@dish-list/shared";
+import { addTag, DISH_LIMITS, type DishContentInput } from "@dish-list/shared";
 import { useState } from "react";
 import { BottomSheet } from "../../components/BottomSheet";
 import { Button } from "../../components/Button";
@@ -48,7 +48,7 @@ export function DishEditorSheet({
   const handleSave = async () => {
     if (!canSave) return;
     // 確定し忘れたタグの入力も保存に含める
-    const content: DishContent = { name, memo, tags: addTag(tags, tagDraft) };
+    const content: DishContentInput = { name, memo, tags: addTag(tags, tagDraft) };
     try {
       if (isNew) await createDish(content, actor);
       else await updateDish(dish.id, content, actor);
